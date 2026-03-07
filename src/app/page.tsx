@@ -1,164 +1,252 @@
-import Link from "next/link";
-import { getFeaturedProducts, categories } from "@/lib/products";
-import { SuspenseWrapper } from "@/components/suspense-wrapper";
+"use client";
 
-export const dynamic = 'force-dynamic';
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { getFeaturedProducts, categories } from "@/lib/products";
+import { 
+  PageWrapper,
+  SectionWrapper, 
+  CardWrapper, 
+  staggerContainer,
+  fadeUp,
+  slideInLeft,
+  slideInRight,
+  gentlePulse
+} from "@/components/animations";
 
 export default function HomePage() {
-  return (
-    <SuspenseWrapper>
-      <HomeContent />
-    </SuspenseWrapper>
-  );
-}
-
-function HomeContent() {
   const featuredProducts = getFeaturedProducts(8);
 
   return (
-    <main className="min-h-screen">
+    <PageWrapper>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+        {/* Animated background pattern */}
+        <motion.div
+          initial={{ scale: 1.2, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.1 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 bg-grid-pattern"
+        />
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
-            <div>
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+            <motion.div
+              variants={slideInLeft}
+              initial="hidden"
+              animate="show"
+            >
+              <motion.h1 
+                className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
+                variants={fadeUp}
+              >
                 Premium Products for the{" "}
-                <span className="text-orange-600 dark:text-orange-400">
+                <motion.span 
+                  className="text-orange-600 dark:text-orange-400 inline-block"
+                  animate={{ 
+                    scale: [1, 1.02, 1],
+                    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                  }}
+                >
                   Modern Nigerian
-                </span>{" "}
+                </motion.span>{" "}
                 Home
-              </h1>
+              </motion.h1>
               
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+              <motion.p 
+                className="text-lg text-gray-600 dark:text-gray-300 mb-8"
+                variants={fadeUp}
+              >
                 Discover our curated collection of solar essentials, natural skincare,
                 home solutions, and luxury fragrances. Join 10,000+ happy customers.
-              </p>
+              </motion.p>
 
               {/* Trust Signals */}
-              <div className="flex flex-wrap gap-6 mb-8">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-xl">✓</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">10,000+</p>
-                    <p className="text-sm text-gray-500">Happy Customers</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 text-xl">⭐</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">4.8/5</p>
-                    <p className="text-sm text-gray-500">Customer Rating</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-purple-600 text-xl">🚚</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Free Delivery</p>
-                    <p className="text-sm text-gray-500">Lagos & Abuja</p>
-                  </div>
-                </div>
-              </div>
+              <motion.div 
+                className="flex flex-wrap gap-6 mb-8"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+              >
+                {[
+                  { icon: "✓", bg: "bg-green-100", text: "10,000+", subtext: "Happy Customers" },
+                  { icon: "⭐", bg: "bg-blue-100", text: "4.8/5", subtext: "Customer Rating" },
+                  { icon: "🚚", bg: "bg-purple-100", text: "Free Delivery", subtext: "Lagos & Abuja" }
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex items-center gap-2"
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <motion.div 
+                      className={`w-10 h-10 ${item.bg} rounded-full flex items-center justify-center`}
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <span className="text-green-600 text-xl">{item.icon}</span>
+                    </motion.div>
+                    <div>
+                      <p className="font-semibold">{item.text}</p>
+                      <p className="text-sm text-gray-500">{item.subtext}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
 
               {/* CTA Button */}
-              <Link
-                href="#featured"
-                className="inline-flex items-center px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors text-lg"
+              <motion.div
+                variants={fadeUp}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Shop Now
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
+                <Link
+                  href="#featured"
+                  className="inline-flex items-center px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors text-lg shadow-lg"
+                >
+                  Shop Now
+                  <motion.svg 
+                    className="w-5 h-5 ml-2" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </motion.svg>
+                </Link>
+              </motion.div>
+            </motion.div>
 
             {/* Right Content - Category Showcase */}
-            <div className="grid grid-cols-2 gap-4">
+            <motion.div 
+              className="grid grid-cols-2 gap-4"
+              variants={slideInRight}
+              initial="hidden"
+              animate="show"
+            >
               {categories.map((category, index) => (
-                <Link
+                <motion.div
                   key={index}
-                  href={`/categories/${category.name.toLowerCase().replace(' ', '-')}`}
-                  className={`${
-                    index === 0 ? "bg-orange-100" :
-                    index === 1 ? "bg-green-100" :
-                    index === 2 ? "bg-blue-100" : "bg-purple-100"
-                  } dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow text-center`}
+                  variants={fadeUp}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <span className="text-4xl mb-2 block">{category.icon}</span>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{category.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{category.count} products</p>
-                </Link>
+                  <Link
+                    href={`/categories/${category.name.toLowerCase().replace(' ', '-')}`}
+                    className={`${
+                      index === 0 ? "bg-orange-100" :
+                      index === 1 ? "bg-green-100" :
+                      index === 2 ? "bg-blue-100" : "bg-purple-100"
+                    } dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all block text-center`}
+                  >
+                    <motion.span 
+                      className="text-4xl mb-2 block"
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                        scale: [1, 1.1, 1],
+                        transition: { 
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.2,
+                          ease: "easeInOut"
+                        }
+                      }}
+                    >
+                      {category.icon}
+                    </motion.span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{category.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{category.count} products</p>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Featured Products Section */}
-      <section id="featured" className="py-24 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Featured Products
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Hand-picked essentials for the modern Nigerian home.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-xl transition-all"
-              >
-                <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span className="text-5xl">
-                    {product.category === "Solar Essentials" ? "☀️" : 
-                     product.category === "Skincare" ? "🧴" : 
-                     product.category === "Home Solutions" ? "🏠" : "🌸"}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
-                <div className="flex items-center justify-between">
-                  <p className="text-orange-600 font-bold">₦{product.price.toLocaleString()}</p>
-                  {product.compareAtPrice && (
-                    <p className="text-xs text-gray-400 line-through">₦{product.compareAtPrice.toLocaleString()}</p>
-                  )}
-                </div>
-                {product.tags.includes("bestseller") && (
-                  <span className="mt-2 inline-block px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">
-                    Bestseller
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              href="/categories/all"
-              className="inline-flex items-center px-6 py-3 border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-semibold rounded-lg transition-colors"
+      <SectionWrapper>
+        <section className="py-24 bg-white dark:bg-gray-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div 
+              className="text-center mb-12"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
             >
-              View All Products
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Featured Products
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                Hand-picked essentials for the modern Nigerian home.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+            >
+              {featuredProducts.map((product, index) => (
+                <CardWrapper key={product.id} index={index}>
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="group bg-gray-50 dark:bg-gray-800 rounded-xl p-4 block"
+                  >
+                    <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <span className="text-5xl">
+                        {product.category === "Solar Essentials" ? "☀️" : 
+                         product.category === "Skincare" ? "🧴" : 
+                         product.category === "Home Solutions" ? "🏠" : "🌸"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <p className="text-orange-600 font-bold">₦{product.price.toLocaleString()}</p>
+                      {product.compareAtPrice && (
+                        <p className="text-xs text-gray-400 line-through">₦{product.compareAtPrice.toLocaleString()}</p>
+                      )}
+                    </div>
+                    {product.tags.includes("bestseller") && (
+                      <motion.span 
+                        className="mt-2 inline-block px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        Bestseller
+                      </motion.span>
+                    )}
+                  </Link>
+                </CardWrapper>
+              ))}
+            </motion.div>
+
+            <motion.div 
+              className="text-center mt-12"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link
+                href="/categories/all"
+                className="inline-flex items-center px-6 py-3 border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-semibold rounded-lg transition-colors"
+              >
+                View All Products
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </motion.div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </SectionWrapper>
+    </PageWrapper>
   );
 }

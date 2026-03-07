@@ -5,6 +5,7 @@ import { MetaPixelProvider } from "@/components/providers/meta-pixel-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "react-hot-toast";
+import { AnimationProvider } from "@/components/providers/animation-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,23 +22,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="https://js.paystack.co/v1/inline.js"></script>
+        <script src="https://js.paystack.co/v1/inline.js" async />
       </head>
       <body className={inter.className}>
         <MetaPixelProvider>
           <CartProvider>
-            <Header />
-            {children}
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
+            <AnimationProvider>
+              <Header />
+              {children}
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                }}
+              />
+            </AnimationProvider>
           </CartProvider>
         </MetaPixelProvider>
       </body>

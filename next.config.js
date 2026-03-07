@@ -1,15 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Ignore type errors during build
+  // Faster development
+  swcMinify: true,
+  
+  // Optimize images
+  images: {
+    domains: ['localhost'],
+    unoptimized: process.env.NODE_ENV === 'development',
+  },
+  
+  // Ignore TypeScript errors in development for speed
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
-  // Ignore ESLint errors during build
+  
+  // Ignore ESLint errors in development for speed
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
   },
-  // Make all pages dynamic to avoid prerendering issues
-  output: 'standalone',
 };
 
 module.exports = nextConfig;
