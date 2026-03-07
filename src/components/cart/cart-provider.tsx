@@ -19,9 +19,6 @@ interface CartContextType {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  getItemCount: () => number;
-  getSubtotal: () => number;
-  getTotal: () => number;
   itemCount: number;
   total: number;
 }
@@ -59,7 +56,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (newItem: CartItem) => {
     setItems(currentItems => {
-      // Check if item already exists in cart
       const existingItemIndex = currentItems.findIndex(item => item.id === newItem.id);
       
       if (existingItemIndex >= 0) {
@@ -70,7 +66,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           quantity: updatedItems[existingItemIndex].quantity + newItem.quantity
         };
         
-        // Track add to cart event (only if tracking is available)
+        // Track add to cart event
         try {
           trackAddToCart(newItem.id, newItem.price * newItem.quantity, "NGN", {
             content_name: newItem.name,
@@ -101,22 +97,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeItem = (id: string) => {
     setItems(currentItems => {
-      const itemToRemove = currentItems.find(item => item.id === id);
       const updatedItems = currentItems.filter(item => item.id !== id);
-      
-      if (itemToRemove) {
-        try {
-          trackEvent("CustomizeProduct", {
-            content_name: "Remove from Cart",
-            content_ids: [id],
-            product_name: itemToRemove.name,
-            cart_total: updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-          });
-        } catch (error) {
-          console.log('Tracking unavailable');
-        }
-      }
-      
       return updatedItems;
     });
   };
@@ -127,59 +108,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     
-    setItems(currentItems => {
-      const updatedItems = currentItems.map(item =>
+    setItems(currentItems =>
+      currentItems.map(item =>
         item.id === id ? { ...item, quantity } : item
-      );
-      
-      // Track quantity update
-      const item = currentItems.find(i => i.id === id);
-      if (item) {
-        try {
-          trackEvent("CustomizeProduct", {
-            content_name: "Update Quantity",
-            content_ids: [id],
-            quantity: quantity,
-            value: item.price * quantity,
-            currency: "NGN"
-          });
-        } catch (error) {
-          console.log('Tracking unavailable');
-        }
-      }
-      
-      return updatedItems;
-    });
+      )
+    );
   };
 
   const clearCart = () => {
     setItems([]);
     localStorage.removeItem(CART_STORAGE_KEY);
-    
-    try {
-      trackEvent("CustomizeProduct", {
-        content_name: "Cart Cleared"
-      });
-    } catch (error) {
-      console.log('Tracking unavailable');
-    }
   };
 
-  const getItemCount = () => {
-    return items.reduce((count, item) => count + item.quantity, 0);
-  };
-
-  const getSubtotal = () => {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const getTotal = () => {
-    // Add shipping, tax, etc. if needed
-    return getSubtotal();
-  };
-
-  const itemCount = getItemCount();
-  const total = getTotal();
+  // Computed values
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
     <CartContext.Provider
@@ -189,9 +132,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
-        getItemCount,
-        getSubtotal,
-        getTotal,
         itemCount,
         total
       }}
