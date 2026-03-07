@@ -6,6 +6,8 @@ import { CartProvider } from "@/components/cart/cart-provider";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "react-hot-toast";
 import { AnimationProvider } from "@/components/providers/animation-provider";
+import { LoadingProgress } from "@/components/loading-progress";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,11 +27,16 @@ export default function RootLayout({
         <script src="https://js.paystack.co/v1/inline.js" async />
       </head>
       <body className={inter.className}>
+        <Suspense fallback={null}>
+          <LoadingProgress />
+        </Suspense>
         <MetaPixelProvider>
           <CartProvider>
             <AnimationProvider>
               <Header />
-              {children}
+              <main className="min-h-screen">
+                {children}
+              </main>
               <Toaster 
                 position="top-right"
                 toastOptions={{

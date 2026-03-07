@@ -16,7 +16,8 @@ export type PixelEvent =
   | "Lead"
   | "CompleteRegistration"
   | "Contact"
-  | "Subscribe";
+  | "Subscribe"
+  | "CustomizeProduct";  // Added this line
 
 export interface PixelParams {
   content_name?: string;

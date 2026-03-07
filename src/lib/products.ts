@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   compareAtPrice?: number;
   image: string;
+  images: string[];
   category: string;
   brand: string;
   rating: number;
@@ -27,7 +28,13 @@ export const products: Record<string, Product> = {
     description: "Apple's most advanced iPhone with A17 Pro chip, titanium design, and pro camera system.",
     price: 1200000,
     compareAtPrice: 1350000,
-    image: "/images/products/iphone-15-pro-max.jpg",
+    image: "/images/products/iphone-15-pro-max/1.jpg",
+    images: [
+      "/images/products/iphone-15-pro-max/1.jpg",
+      "/images/products/iphone-15-pro-max/2.jpg",
+      "/images/products/iphone-15-pro-max/3.jpg",
+      "/images/products/iphone-15-pro-max/4.jpg"
+    ],
     category: "Phones",
     brand: "Apple",
     rating: 4.9,
@@ -58,7 +65,12 @@ export const products: Record<string, Product> = {
     description: "Powerful A17 Pro chip, titanium design, and pro camera system in a compact size.",
     price: 950000,
     compareAtPrice: 1050000,
-    image: "/images/products/iphone-15-pro.jpg",
+    image: "/images/products/iphone-15-pro/1.jpg",
+    images: [
+      "/images/products/iphone-15-pro/1.jpg",
+      "/images/products/iphone-15-pro/2.jpg",
+      "/images/products/iphone-15-pro/3.jpg"
+    ],
     category: "Phones",
     brand: "Apple",
     rating: 4.8,
@@ -89,7 +101,13 @@ export const products: Record<string, Product> = {
     description: "The ultimate smartphone with Galaxy AI, titanium build, and 200MP camera.",
     price: 1150000,
     compareAtPrice: 1250000,
-    image: "/images/products/samsung-s24-ultra.jpg",
+    image: "/images/products/samsung-s24-ultra/1.jpg",
+    images: [
+      "/images/products/samsung-s24-ultra/1.jpg",
+      "/images/products/samsung-s24-ultra/2.jpg",
+      "/images/products/samsung-s24-ultra/3.jpg",
+      "/images/products/samsung-s24-ultra/4.jpg"
+    ],
     category: "Phones",
     brand: "Samsung",
     rating: 4.9,
@@ -120,7 +138,12 @@ export const products: Record<string, Product> = {
     description: "Premium smartphone with Galaxy AI and pro-grade camera.",
     price: 850000,
     compareAtPrice: 920000,
-    image: "/images/products/samsung-s24-plus.jpg",
+    image: "/images/products/samsung-s24-plus/1.jpg",
+    images: [
+      "/images/products/samsung-s24-plus/1.jpg",
+      "/images/products/samsung-s24-plus/2.jpg",
+      "/images/products/samsung-s24-plus/3.jpg"
+    ],
     category: "Phones",
     brand: "Samsung",
     rating: 4.7,
@@ -151,7 +174,12 @@ export const products: Record<string, Product> = {
     description: "The best Google AI smartphone with pro camera and advanced temperature sensor.",
     price: 920000,
     compareAtPrice: 1000000,
-    image: "/images/products/pixel-8-pro.jpg",
+    image: "/images/products/pixel-8-pro/1.jpg",
+    images: [
+      "/images/products/pixel-8-pro/1.jpg",
+      "/images/products/pixel-8-pro/2.jpg",
+      "/images/products/pixel-8-pro/3.jpg"
+    ],
     category: "Phones",
     brand: "Pixel",
     rating: 4.8,
@@ -182,7 +210,12 @@ export const products: Record<string, Product> = {
     description: "Advanced AI smartphone with pro controls and compact design.",
     price: 680000,
     compareAtPrice: 750000,
-    image: "/images/products/pixel-8.jpg",
+    image: "/images/products/pixel-8/1.jpg",
+    images: [
+      "/images/products/pixel-8/1.jpg",
+      "/images/products/pixel-8/2.jpg",
+      "/images/products/pixel-8/3.jpg"
+    ],
     category: "Phones",
     brand: "Pixel",
     rating: 4.7,
@@ -216,7 +249,12 @@ export const products: Record<string, Product> = {
     description: "Ultimate iPad experience with M2 chip, XDR display, and pro features.",
     price: 850000,
     compareAtPrice: 950000,
-    image: "/images/products/ipad-pro.jpg",
+    image: "/images/products/ipad-pro/1.jpg",
+    images: [
+      "/images/products/ipad-pro/1.jpg",
+      "/images/products/ipad-pro/2.jpg",
+      "/images/products/ipad-pro/3.jpg"
+    ],
     category: "Tablets",
     brand: "Apple",
     rating: 4.9,
@@ -247,7 +285,12 @@ export const products: Record<string, Product> = {
     description: "Powerful M1 chip, stunning design, and all-screen display.",
     price: 550000,
     compareAtPrice: 600000,
-    image: "/images/products/ipad-air.jpg",
+    image: "/images/products/ipad-air/1.jpg",
+    images: [
+      "/images/products/ipad-air/1.jpg",
+      "/images/products/ipad-air/2.jpg",
+      "/images/products/ipad-air/3.jpg"
+    ],
     category: "Tablets",
     brand: "Apple",
     rating: 4.8,
@@ -278,7 +321,12 @@ export const products: Record<string, Product> = {
     description: "The ultimate tablet for productivity and entertainment with massive display and S Pen.",
     price: 780000,
     compareAtPrice: 850000,
-    image: "/images/products/samsung-tab-s9-ultra.jpg",
+    image: "/images/products/samsung-tab-s9-ultra/1.jpg",
+    images: [
+      "/images/products/samsung-tab-s9-ultra/1.jpg",
+      "/images/products/samsung-tab-s9-ultra/2.jpg",
+      "/images/products/samsung-tab-s9-ultra/3.jpg"
+    ],
     category: "Tablets",
     brand: "Samsung",
     rating: 4.8,
@@ -312,7 +360,12 @@ export const products: Record<string, Product> = {
     description: "Powerful portable speaker with X-Balanced speaker unit and EXTRA BASS.",
     price: 185000,
     compareAtPrice: 210000,
-    image: "/images/products/sony-speaker.jpg",
+    image: "/images/products/sony-speaker/1.jpg",
+    images: [
+      "/images/products/sony-speaker/1.jpg",
+      "/images/products/sony-speaker/2.jpg",
+      "/images/products/sony-speaker/3.jpg"
+    ],
     category: "Speakers",
     brand: "Sony",
     rating: 4.7,
@@ -337,44 +390,18 @@ export const products: Record<string, Product> = {
     tags: ["sony", "speaker", "audio", "portable"]
   },
 
-  "samsung-mx-st50b": {
-    id: "samsung-mx-st50b",
-    name: "Samsung MX-ST50B Sound Tower",
-    description: "Powerful all-in-one sound system with dynamic lighting and karaoke features.",
-    price: 320000,
-    compareAtPrice: 350000,
-    image: "/images/products/samsung-speaker.jpg",
-    category: "Speakers",
-    brand: "Samsung",
-    rating: 4.6,
-    reviews: 123,
-    inStock: true,
-    features: [
-      "Powerful sound with dynamic bass",
-      "Dynamic lighting effects",
-      "Karaoke features",
-      "Bluetooth connectivity",
-      "USB recording",
-      "Multi-device pairing"
-    ],
-    specifications: {
-      "Power": "300W",
-      "Speakers": "2-way speaker system",
-      "Connectivity": "Bluetooth, USB, AUX",
-      "Features": "Karaoke, Dynamic Light",
-      "Dimensions": "330 x 700 x 330 mm",
-      "Weight": "8.5kg"
-    },
-    tags: ["samsung", "speaker", "audio", "party"]
-  },
-
   "sony-ult-field-1": {
     id: "sony-ult-field-1",
     name: "Sony ULT FIELD 1 Portable Speaker",
     description: "Compact but powerful portable speaker with ULT button for deep bass.",
     price: 145000,
     compareAtPrice: 165000,
-    image: "/images/products/sony-ult-speaker.jpg",
+    image: "/images/products/sony-ult-speaker/1.jpg",
+    images: [
+      "/images/products/sony-ult-speaker/1.jpg",
+      "/images/products/sony-ult-speaker/2.jpg",
+      "/images/products/sony-ult-speaker/3.jpg"
+    ],
     category: "Speakers",
     brand: "Sony",
     rating: 4.8,
@@ -408,7 +435,12 @@ export const products: Record<string, Product> = {
     description: "Industry-leading noise cancellation with adaptive audio and personalized spatial audio.",
     price: 245000,
     compareAtPrice: 280000,
-    image: "/images/products/airpods-pro.jpg",
+    image: "/images/products/airpods-pro/1.jpg",
+    images: [
+      "/images/products/airpods-pro/1.jpg",
+      "/images/products/airpods-pro/2.jpg",
+      "/images/products/airpods-pro/3.jpg"
+    ],
     category: "Earpieces",
     brand: "Apple",
     rating: 4.9,
@@ -439,7 +471,12 @@ export const products: Record<string, Product> = {
     description: "Spatial audio, force sensor control, and sweat-resistant design.",
     price: 165000,
     compareAtPrice: 185000,
-    image: "/images/products/airpods-3.jpg",
+    image: "/images/products/airpods-3/1.jpg",
+    images: [
+      "/images/products/airpods-3/1.jpg",
+      "/images/products/airpods-3/2.jpg",
+      "/images/products/airpods-3/3.jpg"
+    ],
     category: "Earpieces",
     brand: "Apple",
     rating: 4.7,
@@ -470,7 +507,12 @@ export const products: Record<string, Product> = {
     description: "Industry-leading noise canceling headphones with exceptional sound quality.",
     price: 320000,
     compareAtPrice: 350000,
-    image: "/images/products/sony-headphones.jpg",
+    image: "/images/products/sony-headphones/1.jpg",
+    images: [
+      "/images/products/sony-headphones/1.jpg",
+      "/images/products/sony-headphones/2.jpg",
+      "/images/products/sony-headphones/3.jpg"
+    ],
     category: "Earpieces",
     brand: "Sony",
     rating: 4.9,
@@ -501,7 +543,12 @@ export const products: Record<string, Product> = {
     description: "Premium earbuds with intelligent ANC and 24-bit Hi-Fi audio.",
     price: 165000,
     compareAtPrice: 185000,
-    image: "/images/products/samsung-buds2-pro.jpg",
+    image: "/images/products/samsung-buds2-pro/1.jpg",
+    images: [
+      "/images/products/samsung-buds2-pro/1.jpg",
+      "/images/products/samsung-buds2-pro/2.jpg",
+      "/images/products/samsung-buds2-pro/3.jpg"
+    ],
     category: "Earpieces",
     brand: "Samsung",
     rating: 4.7,
@@ -532,7 +579,12 @@ export const products: Record<string, Product> = {
     description: "Premium earbuds with Active Noise Cancellation and seamless Google integration.",
     price: 145000,
     compareAtPrice: 165000,
-    image: "/images/products/pixel-buds.jpg",
+    image: "/images/products/pixel-buds/1.jpg",
+    images: [
+      "/images/products/pixel-buds/1.jpg",
+      "/images/products/pixel-buds/2.jpg",
+      "/images/products/pixel-buds/3.jpg"
+    ],
     category: "Earpieces",
     brand: "Pixel",
     rating: 4.6,
@@ -566,7 +618,12 @@ export const products: Record<string, Product> = {
     description: "The most rugged and capable Apple Watch, designed for endurance athletes and adventurers.",
     price: 620000,
     compareAtPrice: 680000,
-    image: "/images/products/apple-watch-ultra.jpg",
+    image: "/images/products/apple-watch-ultra/1.jpg",
+    images: [
+      "/images/products/apple-watch-ultra/1.jpg",
+      "/images/products/apple-watch-ultra/2.jpg",
+      "/images/products/apple-watch-ultra/3.jpg"
+    ],
     category: "Smart Watches",
     brand: "Apple",
     rating: 4.9,
@@ -597,7 +654,12 @@ export const products: Record<string, Product> = {
     description: "Powerful features to help you stay connected, active, and healthy.",
     price: 350000,
     compareAtPrice: 390000,
-    image: "/images/products/apple-watch-9.jpg",
+    image: "/images/products/apple-watch-9/1.jpg",
+    images: [
+      "/images/products/apple-watch-9/1.jpg",
+      "/images/products/apple-watch-9/2.jpg",
+      "/images/products/apple-watch-9/3.jpg"
+    ],
     category: "Smart Watches",
     brand: "Apple",
     rating: 4.8,
@@ -628,7 +690,12 @@ export const products: Record<string, Product> = {
     description: "Premium smartwatch with rotating bezel and advanced health tracking.",
     price: 280000,
     compareAtPrice: 310000,
-    image: "/images/products/samsung-watch6.jpg",
+    image: "/images/products/samsung-watch6/1.jpg",
+    images: [
+      "/images/products/samsung-watch6/1.jpg",
+      "/images/products/samsung-watch6/2.jpg",
+      "/images/products/samsung-watch6/3.jpg"
+    ],
     category: "Smart Watches",
     brand: "Samsung",
     rating: 4.7,
@@ -659,7 +726,12 @@ export const products: Record<string, Product> = {
     description: "Smartwatch with Fitbit health tracking and seamless Google integration.",
     price: 240000,
     compareAtPrice: 270000,
-    image: "/images/products/pixel-watch.jpg",
+    image: "/images/products/pixel-watch/1.jpg",
+    images: [
+      "/images/products/pixel-watch/1.jpg",
+      "/images/products/pixel-watch/2.jpg",
+      "/images/products/pixel-watch/3.jpg"
+    ],
     category: "Smart Watches",
     brand: "Pixel",
     rating: 4.6,
@@ -693,7 +765,12 @@ export const products: Record<string, Product> = {
     description: "48-hour battery backup, 3 speed settings, USB charging ports. Perfect for Nigerian homes experiencing power outages.",
     price: 65000,
     compareAtPrice: 85000,
-    image: "/images/products/solar-fan-pro.jpg",
+    image: "/images/products/solar-fan-pro/1.jpg",
+    images: [
+      "/images/products/solar-fan-pro/1.jpg",
+      "/images/products/solar-fan-pro/2.jpg",
+      "/images/products/solar-fan-pro/3.jpg"
+    ],
     category: "Solar Essentials",
     brand: "SolarTech",
     rating: 4.9,
@@ -723,7 +800,12 @@ export const products: Record<string, Product> = {
     description: "High-capacity power bank with solar charging. Charge 6 devices simultaneously.",
     price: 38000,
     compareAtPrice: 48000,
-    image: "/images/products/solar-powerbank.jpg",
+    image: "/images/products/solar-powerbank/1.jpg",
+    images: [
+      "/images/products/solar-powerbank/1.jpg",
+      "/images/products/solar-powerbank/2.jpg",
+      "/images/products/solar-powerbank/3.jpg"
+    ],
     category: "Solar Essentials",
     brand: "SolarTech",
     rating: 4.8,
@@ -754,7 +836,12 @@ export const products: Record<string, Product> = {
     description: "Energy-efficient LED bulb with solar panel. 3 lighting modes, remote control.",
     price: 12500,
     compareAtPrice: 18000,
-    image: "/images/products/solar-bulb.jpg",
+    image: "/images/products/solar-bulb/1.jpg",
+    images: [
+      "/images/products/solar-bulb/1.jpg",
+      "/images/products/solar-bulb/2.jpg",
+      "/images/products/solar-bulb/3.jpg"
+    ],
     category: "Solar Essentials",
     brand: "SolarTech",
     rating: 4.7,
@@ -788,7 +875,12 @@ export const products: Record<string, Product> = {
     description: "100% organic, fair trade, 3-piece collection. Handcrafted with traditional Nigerian recipes.",
     price: 18500,
     compareAtPrice: 25000,
-    image: "/images/products/shea-butter.jpg",
+    image: "/images/products/shea-butter/1.jpg",
+    images: [
+      "/images/products/shea-butter/1.jpg",
+      "/images/products/shea-butter/2.jpg",
+      "/images/products/shea-butter/3.jpg"
+    ],
     category: "Skincare",
     brand: "Naija Naturals",
     rating: 4.8,
@@ -818,7 +910,12 @@ export const products: Record<string, Product> = {
     description: "Traditional Nigerian black soap set. 4 scents: Original, Lavender, Tea Tree, and Citrus.",
     price: 22500,
     compareAtPrice: 30000,
-    image: "/images/products/black-soap.jpg",
+    image: "/images/products/black-soap/1.jpg",
+    images: [
+      "/images/products/black-soap/1.jpg",
+      "/images/products/black-soap/2.jpg",
+      "/images/products/black-soap/3.jpg"
+    ],
     category: "Skincare",
     brand: "Naija Naturals",
     rating: 4.9,
@@ -848,7 +945,12 @@ export const products: Record<string, Product> = {
     description: "Cold-pressed virgin coconut oil. Perfect for hair, skin, and cooking.",
     price: 16500,
     compareAtPrice: 22000,
-    image: "/images/products/coconut-oil.jpg",
+    image: "/images/products/coconut-oil/1.jpg",
+    images: [
+      "/images/products/coconut-oil/1.jpg",
+      "/images/products/coconut-oil/2.jpg",
+      "/images/products/coconut-oil/3.jpg"
+    ],
     category: "Skincare",
     brand: "Naija Naturals",
     rating: 4.7,
@@ -881,7 +983,12 @@ export const products: Record<string, Product> = {
     description: "Heavy-duty foldable laundry rack for small apartments. Holds up to 15kg of clothes.",
     price: 18500,
     compareAtPrice: 25000,
-    image: "/images/products/laundry-rack.jpg",
+    image: "/images/products/laundry-rack/1.jpg",
+    images: [
+      "/images/products/laundry-rack/1.jpg",
+      "/images/products/laundry-rack/2.jpg",
+      "/images/products/laundry-rack/3.jpg"
+    ],
     category: "Home Solutions",
     brand: "SpaceSaver",
     rating: 4.7,
@@ -912,7 +1019,12 @@ export const products: Record<string, Product> = {
     description: "Customizable shelving system for small spaces. Mix and match cubes.",
     price: 45000,
     compareAtPrice: 58000,
-    image: "/images/products/shelving.jpg",
+    image: "/images/products/shelving/1.jpg",
+    images: [
+      "/images/products/shelving/1.jpg",
+      "/images/products/shelving/2.jpg",
+      "/images/products/shelving/3.jpg"
+    ],
     category: "Home Solutions",
     brand: "SpaceSaver",
     rating: 4.8,
@@ -942,7 +1054,12 @@ export const products: Record<string, Product> = {
     description: "Maximize space with rolling under-bed storage containers. Clear design.",
     price: 22500,
     compareAtPrice: 30000,
-    image: "/images/products/storage.jpg",
+    image: "/images/products/storage/1.jpg",
+    images: [
+      "/images/products/storage/1.jpg",
+      "/images/products/storage/2.jpg",
+      "/images/products/storage/3.jpg"
+    ],
     category: "Home Solutions",
     brand: "SpaceSaver",
     rating: 4.6,
@@ -1001,7 +1118,7 @@ export function searchProducts(query: string): Product[] {
   );
 }
 
-// Categories for navigation - MUST BE AFTER helper functions
+// Categories for navigation
 export const categories = [
   { name: "Phones", icon: "📱", count: getProductsByCategory("Phones").length },
   { name: "Tablets", icon: "📟", count: getProductsByCategory("Tablets").length },

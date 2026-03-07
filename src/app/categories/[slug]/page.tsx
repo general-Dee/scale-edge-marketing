@@ -1,46 +1,45 @@
 "use client";
 
-// Force dynamic rendering to avoid prerender issues
 export const dynamic = 'force-dynamic';
 
-import { Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { products, getProductsByCategory, categories } from "@/lib/products";
-import { fadeUp, staggerContainer, CardWrapper } from "@/components/animations";
+import { products, getProductsByCategory, categories, Product } from "@/lib/products";
+import { PageTemplate } from "@/components/page-template";
+import { ProductGridSkeleton } from "@/components/skeletons";
 
-// Main page component with Suspense
 export default function CategoryPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading category...</p>
-        </div>
-      </div>
-    }>
-      <CategoryContent />
-    </Suspense>
-  );
-}
-
-// Component that uses useParams
-function CategoryContent() {
   const params = useParams();
   const slug = params.slug as string;
   
-  // Convert slug back to category name (e.g., "smart-watches" -> "Smart Watches")
-  const categoryName = slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-  
-  const categoryProducts = getProductsByCategory(categoryName);
-  const category = categories.find(c => c.name === categoryName);
+  const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [category, setCategory] = useState<{ name: string; icon: string; count: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Helper function to get category icon
+  useEffect(() => {
+    setMounted(true);
+    
+    // Convert slug back to category name
+    const categoryName = slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    const foundCategory = categories.find(c => c.name === categoryName);
+    setCategory(foundCategory || null);
+
+    // Simulate data fetching
+    const timer = setTimeout(() => {
+      const products = getProductsByCategory(categoryName);
+      setCategoryProducts(products);
+      setLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [slug]);
+
   const getCategoryIcon = (name: string) => {
     const icons: Record<string, string> = {
       "Phones": "📱",
@@ -55,89 +54,124 @@ function CategoryContent() {
     return icons[name] || "📦";
   };
 
-  if (!category || categoryProducts.length === 0) {
+  const getCategoryColor = (name: string) => {
+    const colors: Record<string, string> = {
+      "Phones": "bg-blue-100",
+      "Tablets": "bg-purple-100",
+      "Speakers": "bg-indigo-100",
+      "Earpieces": "bg-pink-100",
+      "Smart Watches": "bg-cyan-100",
+      "Solar Essentials": "bg-orange-100",
+      "Skincare": "bg-green-100",
+      "Home Solutions": "bg-gray-100"
+    };
+    return colors[name] || "bg-orange-100";
+  };
+
+  if (!mounted) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl font-bold mb-4">Category Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            The category you're looking for doesn't exist.
-          </p>
-          <Link
-            href="/categories"
-            className="inline-flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
-          >
-            Browse Categories
-          </Link>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading category...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
-        <nav className="flex mb-8 text-sm">
-          <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
-          <span className="mx-2 text-gray-500">/</span>
-          <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
-          <span className="mx-2 text-gray-500">/</span>
-          <span className="text-gray-900 dark:text-white">{category.name}</span>
-        </nav>
-
-        {/* Category Header */}
-        <motion.div 
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-8"
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <motion.span 
-              className="text-6xl"
-              animate={{ 
-                rotate: [0, 5, -5, 0],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              {getCategoryIcon(category.name)}
-            </motion.span>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                {category.name}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                {categoryProducts.length} products available from top brands
+  if (!loading && (!category || categoryProducts.length === 0)) {
+    return (
+      <PageTemplate>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12">
+              <h1 className="text-3xl font-bold mb-4">Category Not Found</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-8">
+                The category you're looking for doesn't exist.
               </p>
+              <Link
+                href="/categories"
+                className="inline-flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+              >
+                Browse Categories
+              </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </PageTemplate>
+    );
+  }
 
-        {/* Products Grid */}
-        {categoryProducts.length > 0 ? (
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="show"
-          >
-            {categoryProducts.map((product, index) => {
-              const discount = product.compareAtPrice 
-                ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-                : 0;
+  return (
+    <PageTemplate fallback={<ProductGridSkeleton count={8} />}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <nav className="flex mb-8 text-sm">
+            <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
+            <span className="mx-2 text-gray-500">/</span>
+            <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
+            <span className="mx-2 text-gray-500">/</span>
+            <span className="text-gray-900 dark:text-white">{category?.name || slug}</span>
+          </nav>
 
-              return (
-                <CardWrapper key={product.id} index={index}>
+          {/* Category Header */}
+          {loading ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-8 animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64 mb-2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                </div>
+              </div>
+            </div>
+          ) : category && (
+            <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-8 border-l-4 border-orange-600`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-24 h-24 ${getCategoryColor(category.name)} rounded-full flex items-center justify-center text-4xl`}>
+                  {getCategoryIcon(category.name)}
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {category.name}
+                  </h1>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {categoryProducts.length} products available from top brands
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Products Grid */}
+          {loading ? (
+            <ProductGridSkeleton count={8} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categoryProducts.map((product) => {
+                const discount = product.compareAtPrice 
+                  ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+                  : 0;
+
+                return (
                   <Link
+                    key={product.id}
                     href={`/products/${product.id}`}
                     className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden block"
                   >
                     <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center p-8">
-                      <span className="text-6xl transform group-hover:scale-110 transition-transform">
-                        {getCategoryIcon(category.name)}
-                      </span>
+                      {product.images && product.images[0] ? (
+                        <img 
+                          src={product.images[0]} 
+                          alt={product.name}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <span className="text-6xl transform group-hover:scale-110 transition-transform">
+                          {category && getCategoryIcon(category.name)}
+                        </span>
+                      )}
                       {discount > 0 && (
                         <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                           -{discount}%
@@ -192,18 +226,12 @@ function CategoryContent() {
                       </div>
                     </div>
                   </Link>
-                </CardWrapper>
-              );
-            })}
-          </motion.div>
-        ) : (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl">
-            <p className="text-gray-600 dark:text-gray-400">
-              No products found in this category.
-            </p>
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </PageTemplate>
   );
 }
