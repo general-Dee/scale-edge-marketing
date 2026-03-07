@@ -1,5 +1,8 @@
 "use client";
 
+// Force dynamic rendering to avoid prerender issues
+export const dynamic = 'force-dynamic';
+
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getFeaturedProducts, categories } from "@/lib/products";
@@ -10,12 +13,26 @@ import {
   staggerContainer,
   fadeUp,
   slideInLeft,
-  slideInRight,
-  gentlePulse
+  slideInRight
 } from "@/components/animations";
 
 export default function HomePage() {
   const featuredProducts = getFeaturedProducts(8);
+
+  // Helper function to get category color
+  const getCategoryColor = (categoryName: string) => {
+    const colors: Record<string, string> = {
+      "Phones": "bg-blue-100",
+      "Tablets": "bg-purple-100",
+      "Speakers": "bg-indigo-100",
+      "Earpieces": "bg-pink-100",
+      "Smart Watches": "bg-cyan-100",
+      "Solar Essentials": "bg-orange-100",
+      "Skincare": "bg-green-100",
+      "Home Solutions": "bg-gray-100"
+    };
+    return colors[categoryName] || "bg-gray-100";
+  };
 
   return (
     <PageWrapper>
@@ -58,8 +75,8 @@ export default function HomePage() {
                 className="text-lg text-gray-600 dark:text-gray-300 mb-8"
                 variants={fadeUp}
               >
-                Discover our curated collection of solar essentials, natural skincare,
-                home solutions, and luxury fragrances. Join 10,000+ happy customers.
+                Discover our curated collection of premium electronics, solar essentials, 
+                natural skincare, and home solutions. Shop top brands like Apple, Samsung, Sony, and Google Pixel.
               </motion.p>
 
               {/* Trust Signals */}
@@ -72,7 +89,8 @@ export default function HomePage() {
                 {[
                   { icon: "✓", bg: "bg-green-100", text: "10,000+", subtext: "Happy Customers" },
                   { icon: "⭐", bg: "bg-blue-100", text: "4.8/5", subtext: "Customer Rating" },
-                  { icon: "🚚", bg: "bg-purple-100", text: "Free Delivery", subtext: "Lagos & Abuja" }
+                  { icon: "🚚", bg: "bg-purple-100", text: "Free Delivery", subtext: "Lagos & Abuja" },
+                  { icon: "🔒", bg: "bg-orange-100", text: "Secure", subtext: "Paystack Payments" }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -120,9 +138,9 @@ export default function HomePage() {
               </motion.div>
             </motion.div>
 
-            {/* Right Content - Category Showcase */}
+            {/* Right Content - Category Showcase (8 categories) */}
             <motion.div 
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
               variants={slideInRight}
               initial="hidden"
               animate="show"
@@ -136,30 +154,26 @@ export default function HomePage() {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Link
-                    href={`/categories/${category.name.toLowerCase().replace(' ', '-')}`}
-                    className={`${
-                      index === 0 ? "bg-orange-100" :
-                      index === 1 ? "bg-green-100" :
-                      index === 2 ? "bg-blue-100" : "bg-purple-100"
-                    } dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all block text-center`}
+                    href={`/categories/${category.name.toLowerCase().replace(/ /g, '-')}`}
+                    className={`${getCategoryColor(category.name)} dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all block text-center`}
                   >
                     <motion.span 
-                      className="text-4xl mb-2 block"
+                      className="text-3xl sm:text-4xl mb-2 block"
                       animate={{ 
                         rotate: [0, 5, -5, 0],
                         scale: [1, 1.1, 1],
                         transition: { 
                           duration: 3,
                           repeat: Infinity,
-                          delay: index * 0.2,
+                          delay: index * 0.1,
                           ease: "easeInOut"
                         }
                       }}
                     >
                       {category.icon}
                     </motion.span>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{category.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{category.count} products</p>
+                    <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{category.name}</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{category.count} products</p>
                   </Link>
                 </motion.div>
               ))}
@@ -170,7 +184,7 @@ export default function HomePage() {
 
       {/* Featured Products Section */}
       <SectionWrapper>
-        <section className="py-24 bg-white dark:bg-gray-900">
+        <section id="featured" className="py-24 bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div 
               className="text-center mb-12"
@@ -183,7 +197,7 @@ export default function HomePage() {
                 Featured Products
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Hand-picked essentials for the modern Nigerian home.
+                Hand-picked bestsellers from our premium collection
               </p>
             </motion.div>
 
@@ -202,12 +216,17 @@ export default function HomePage() {
                   >
                     <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
                       <span className="text-5xl">
-                        {product.category === "Solar Essentials" ? "☀️" : 
+                        {product.category === "Phones" ? "📱" : 
+                         product.category === "Tablets" ? "📟" :
+                         product.category === "Speakers" ? "🔊" :
+                         product.category === "Earpieces" ? "🎧" :
+                         product.category === "Smart Watches" ? "⌚" :
+                         product.category === "Solar Essentials" ? "☀️" : 
                          product.category === "Skincare" ? "🧴" : 
-                         product.category === "Home Solutions" ? "🏠" : "🌸"}
+                         "🏠"}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
                     <div className="flex items-center justify-between">
                       <p className="text-orange-600 font-bold">₦{product.price.toLocaleString()}</p>
@@ -243,6 +262,38 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
+            </motion.div>
+          </div>
+        </section>
+      </SectionWrapper>
+
+      {/* Brand Showcase Section */}
+      <SectionWrapper>
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.h2 
+              className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8"
+              variants={fadeUp}
+            >
+              Top Brands Available
+            </motion.h2>
+            <motion.div 
+              className="flex flex-wrap justify-center gap-8 items-center"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+            >
+              {["Apple", "Samsung", "Sony", "Google Pixel", "SolarTech", "Naija Naturals"].map((brand, index) => (
+                <motion.div
+                  key={brand}
+                  variants={fadeUp}
+                  whileHover={{ scale: 1.1 }}
+                  className="text-xl font-semibold text-gray-700 dark:text-gray-300 px-4 py-2 bg-white dark:bg-gray-700 rounded-lg shadow"
+                >
+                  {brand}
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </section>
