@@ -29,10 +29,8 @@ export default function ProductPage() {
   const { trackViewContent, trackAddToCart } = useMetaPixel();
   const cartButtonRef = useCartButtonRef();
 
-  // Ref for scroll animations
   const productContainerRef = useRef<HTMLDivElement>(null);
 
-  // GSAP scroll animation
   useGSAP(() => {
     if (!productContainerRef.current) return;
     gsap.from('.gsap-product-item', {
@@ -48,7 +46,7 @@ export default function ProductPage() {
       stagger: 0.2,
       ease: 'power2.out',
     });
-  }, { scope: productContainerRef, dependencies: [product] }); // re-run when product loads
+  }, { scope: productContainerRef, dependencies: [product] });
 
   useEffect(() => {
     setMounted(true);
@@ -66,35 +64,36 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return;
 
-    // Find the button that was clicked (active element) or use a ref
+    // Try to get the button that triggered the click (active element)
     const button = document.activeElement as HTMLElement;
-    if (button) {
-      flyToCart(button, cartButtonRef.current, () => {
-        // After animation, add to cart
-        addItem({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          quantity,
-          image: product.images?.[0] || product.image,
-          brand: product.brand,
-          category: product.category
-        });
 
-        trackAddToCart(product.id, product.price * quantity, "NGN", {
-          content_name: product.name,
-          quantity,
-        });
-
-        toast.success(`${product.name} added to cart!`, {
-          icon: '🛒',
-          duration: 3000
-        });
+    const addItemToCart = () => {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity,
+        image: product.images?.[0] || product.image,
+        brand: product.brand,
+        category: product.category,
       });
+
+      trackAddToCart(product.id, product.price * quantity, "NGN", {
+        content_name: product.name,
+        quantity,
+      });
+
+      toast.success(`${product.name} added to cart!`, {
+        icon: '🛒',
+        duration: 3000,
+      });
+    };
+
+    if (button) {
+      flyToCart(button, cartButtonRef.current, addItemToCart);
     } else {
-      // fallback
-      addItem({ ... });
-      // ... tracking and toast
+      // Fallback if button reference fails
+      addItemToCart();
     }
   };
 
@@ -160,7 +159,6 @@ export default function ProductPage() {
     <PageTemplate fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
           <nav className="flex mb-8 text-sm">
             <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
             <span className="mx-2 text-gray-500">/</span>
@@ -176,11 +174,9 @@ export default function ProductPage() {
             <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
           </nav>
 
-          {/* Main product container with GSAP scroll ref */}
           <div ref={productContainerRef} className="space-y-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-12">
-                {/* Product Images Gallery */}
                 <div className="gsap-product-item">
                   <ImageGallery
                     images={product.images || [product.image]}
@@ -189,7 +185,6 @@ export default function ProductPage() {
                   />
                 </div>
 
-                {/* Product Details */}
                 <div className="space-y-6">
                   <div className="gsap-product-item">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -205,7 +200,6 @@ export default function ProductPage() {
                     </div>
                   </div>
 
-                  {/* Rating */}
                   <div className="gsap-product-item flex items-center gap-4">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
@@ -224,10 +218,9 @@ export default function ProductPage() {
                     </span>
                   </div>
 
-                  {/* Price */}
                   <div className="gsap-product-item border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold text-orange-600">
+                      <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">
                         ₦{product.price.toLocaleString()}
                       </span>
                       {product.compareAtPrice && (
@@ -244,7 +237,6 @@ export default function ProductPage() {
                     </p>
                   </div>
 
-                  {/* Stock Status */}
                   <div className="gsap-product-item flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${product.inStock ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
                     <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -252,7 +244,6 @@ export default function ProductPage() {
                     </span>
                   </div>
 
-                  {/* Quantity Selector */}
                   <div className="gsap-product-item">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Quantity
@@ -260,21 +251,20 @@ export default function ProductPage() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
                       >
                         -
                       </button>
-                      <span className="w-16 text-center font-medium text-lg">{quantity}</span>
+                      <span className="w-16 text-center font-medium text-lg text-gray-900 dark:text-white">{quantity}</span>
                       <button
                         onClick={() => setQuantity(quantity + 1)}
-                        className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
                       >
                         +
                       </button>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="gsap-product-item space-y-3">
                     <button
                       onClick={handleAddToCart}
@@ -293,7 +283,7 @@ export default function ProductPage() {
                       disabled={!product.inStock}
                       className={`w-full py-3 px-6 rounded-lg font-semibold transition-all border-2 ${
                         product.inStock
-                          ? "border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"
+                          ? "border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-400 dark:hover:text-gray-900"
                           : "border-gray-300 text-gray-400 cursor-not-allowed"
                       }`}
                     >
@@ -301,7 +291,6 @@ export default function ProductPage() {
                     </button>
                   </div>
 
-                  {/* Tags */}
                   <div className="gsap-product-item flex flex-wrap gap-2">
                     {product.tags.slice(0, 5).map((tag: string) => (
                       <span
@@ -313,7 +302,6 @@ export default function ProductPage() {
                     ))}
                   </div>
 
-                  {/* Payment Methods */}
                   <div className="gsap-product-item border-t border-gray-200 dark:border-gray-700 pt-6">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
                       <span className="text-green-600">✓</span> Secure payment powered by Paystack
@@ -332,15 +320,14 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Product Details Tabs */}
               <div className="border-t border-gray-200 dark:border-gray-700 px-6 lg:px-12 py-8">
                 <div className="gsap-product-item prose dark:prose-invert max-w-none">
-                  <h2 className="text-xl font-semibold mb-4">Product Description</h2>
+                  <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Product Description</h2>
                   <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
                     {product.description}
                   </p>
 
-                  <h3 className="text-lg font-semibold mb-3">Key Features</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Key Features</h3>
                   <ul className="list-disc pl-5 mb-6 space-y-2">
                     {product.features.map((feature: string, index: number) => (
                       <li key={index} className="text-gray-600 dark:text-gray-400">
@@ -349,7 +336,7 @@ export default function ProductPage() {
                     ))}
                   </ul>
 
-                  <h3 className="text-lg font-semibold mb-3">Specifications</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Specifications</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                     {Object.entries(product.specifications).map(([key, value]) => (
                       <div key={key} className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600 last:border-0">
@@ -362,11 +349,10 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Related Category Link */}
             <div className="gsap-product-item text-center mt-12">
               <Link
                 href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
-                className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
+                className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold"
               >
                 <span>Browse more {product.category}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
