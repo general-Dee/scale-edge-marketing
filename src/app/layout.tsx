@@ -9,7 +9,7 @@ import { CartButtonRefProvider } from "@/contexts/CartButtonRefContext";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Scale-Edge Marketing LTD",
+  title: "Scale-Edge", // 👈 changed to just "Scale-Edge"
   description: "Premium Products for the Modern Nigerian Consumer",
 };
 
@@ -25,7 +25,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900">
         <Suspense fallback={null}>
-          <CartButtonRefProvider>       {/* 👈 new provider */}
+          <CartButtonRefProvider>
             <MetaPixelProvider>
               <CartProvider>
                 <AnimationProvider>

@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart/cart-provider";
 import { useMetaPixel } from "@/components/providers/meta-pixel-provider";
-import { products } from "@/lib/products";
+import { getProductById } from "@/lib/services/product-service";
 import toast from "react-hot-toast";
 import { PageTemplate } from "@/components/page-template";
 import { ImageGallery } from "@/components/products/image-gallery";
@@ -50,21 +50,26 @@ export default function ProductPage() {
 
   useEffect(() => {
     setMounted(true);
-    const timer = setTimeout(() => {
-      const foundProduct = products[productId];
-      setProduct(foundProduct);
-      setLoading(false);
-      if (foundProduct) {
-        trackViewContent(foundProduct.name, [foundProduct.id], foundProduct.price, "NGN");
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await getProductById(productId);
+        setProduct(data);
+        if (data) {
+          trackViewContent(data.name, [data.id], data.price, "NGN");
+        }
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+      } finally {
+        setLoading(false);
       }
-    }, 100);
-    return () => clearTimeout(timer);
+    };
+    fetchProduct();
   }, [productId, trackViewContent]);
 
   const handleAddToCart = () => {
     if (!product) return;
 
-    // Try to get the button that triggered the click (active element)
     const button = document.activeElement as HTMLElement;
 
     const addItemToCart = () => {
@@ -73,7 +78,7 @@ export default function ProductPage() {
         name: product.name,
         price: product.price,
         quantity,
-        image: product.images?.[0] || product.image,
+        image: product.image_urls?.[0] || '',
         brand: product.brand,
         category: product.category,
       });
@@ -89,10 +94,9 @@ export default function ProductPage() {
       });
     };
 
-    if (button) {
+    if (button && cartButtonRef.current) {
       flyToCart(button, cartButtonRef.current, addItemToCart);
     } else {
-      // Fallback if button reference fails
       addItemToCart();
     }
   };
@@ -116,6 +120,7 @@ export default function ProductPage() {
     return colors[categoryName] || "bg-orange-100";
   };
 
+  // ─── SAFE EARLY RETURNS ─────────────────────────────
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -127,6 +132,16 @@ export default function ProductPage() {
     );
   }
 
+  // Still loading or product is null → show skeleton (handled by PageTemplate)
+  if (loading || !product) {
+    return (
+      <PageTemplate fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900" />}>
+        <div />
+      </PageTemplate>
+    );
+  }
+
+  // Product not found after loading
   if (!loading && !product) {
     return (
       <PageTemplate>
@@ -151,35 +166,39 @@ export default function ProductPage() {
     );
   }
 
-  const discount = product?.compareAtPrice
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  // ─── SAFE TO RENDER MAIN CONTENT ────────────────────
+  const discount = product.compare_at_price
+    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
     : 0;
 
   return (
     <PageTemplate fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex mb-8 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
-            <span className="mx-2 text-gray-500">/</span>
-            <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
-            <span className="mx-2 text-gray-500">/</span>
-            <Link
-              href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
-              className="text-gray-500 hover:text-orange-600"
-            >
-              {product.category}
-            </Link>
-            <span className="mx-2 text-gray-500">/</span>
-            <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
-          </nav>
+          {/* Breadcrumb – only render if product and category exist (extra safety) */}
+          {product && product.category && (
+            <nav className="flex mb-8 text-sm">
+              <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
+              <span className="mx-2 text-gray-500">/</span>
+              <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
+              <span className="mx-2 text-gray-500">/</span>
+              <Link
+                href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
+                className="text-gray-500 hover:text-orange-600"
+              >
+                {product.category}
+              </Link>
+              <span className="mx-2 text-gray-500">/</span>
+              <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
+            </nav>
+          )}
 
           <div ref={productContainerRef} className="space-y-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-12">
                 <div className="gsap-product-item">
                   <ImageGallery
-                    images={product.images || [product.image]}
+                    images={product.image_urls || []}
                     productName={product.name}
                     category={product.category}
                   />
@@ -214,7 +233,7 @@ export default function ProductPage() {
                       ))}
                     </div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {product.reviews} verified reviews
+                      {product.review_count} verified reviews
                     </span>
                   </div>
 
@@ -223,9 +242,9 @@ export default function ProductPage() {
                       <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">
                         ₦{product.price.toLocaleString()}
                       </span>
-                      {product.compareAtPrice && (
+                      {product.compare_at_price && (
                         <span className="text-lg text-gray-500 line-through">
-                          ₦{product.compareAtPrice.toLocaleString()}
+                          ₦{product.compare_at_price.toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -238,9 +257,9 @@ export default function ProductPage() {
                   </div>
 
                   <div className="gsap-product-item flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${product.inStock ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+                    <div className={`w-3 h-3 rounded-full ${product.in_stock ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {product.inStock ? "In Stock" : "Out of Stock"}
+                      {product.in_stock ? "In Stock" : "Out of Stock"}
                     </span>
                   </div>
 
@@ -268,21 +287,21 @@ export default function ProductPage() {
                   <div className="gsap-product-item space-y-3">
                     <button
                       onClick={handleAddToCart}
-                      disabled={!product.inStock}
+                      disabled={!product.in_stock}
                       className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 ${
-                        product.inStock
+                        product.in_stock
                           ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl"
                           : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       }`}
                     >
-                      {product.inStock ? "🛒 Add to Cart" : "Out of Stock"}
+                      {product.in_stock ? "🛒 Add to Cart" : "Out of Stock"}
                     </button>
 
                     <button
                       onClick={handleBuyNow}
-                      disabled={!product.inStock}
+                      disabled={!product.in_stock}
                       className={`w-full py-3 px-6 rounded-lg font-semibold transition-all border-2 ${
-                        product.inStock
+                        product.in_stock
                           ? "border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-400 dark:hover:text-gray-900"
                           : "border-gray-300 text-gray-400 cursor-not-allowed"
                       }`}
@@ -291,16 +310,18 @@ export default function ProductPage() {
                     </button>
                   </div>
 
-                  <div className="gsap-product-item flex flex-wrap gap-2">
-                    {product.tags.slice(0, 5).map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm hover:bg-orange-100 hover:text-orange-600 transition-colors cursor-default"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
+                  {product.tags && product.tags.length > 0 && (
+                    <div className="gsap-product-item flex flex-wrap gap-2">
+                      {product.tags.slice(0, 5).map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm hover:bg-orange-100 hover:text-orange-600 transition-colors cursor-default"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="gsap-product-item border-t border-gray-200 dark:border-gray-700 pt-6">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
@@ -329,7 +350,7 @@ export default function ProductPage() {
 
                   <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Key Features</h3>
                   <ul className="list-disc pl-5 mb-6 space-y-2">
-                    {product.features.map((feature: string, index: number) => (
+                    {product.features?.map((feature: string, index: number) => (
                       <li key={index} className="text-gray-600 dark:text-gray-400">
                         {feature}
                       </li>
@@ -338,7 +359,7 @@ export default function ProductPage() {
 
                   <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Specifications</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
-                    {Object.entries(product.specifications).map(([key, value]) => (
+                    {Object.entries(product.specifications || {}).map(([key, value]) => (
                       <div key={key} className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600 last:border-0">
                         <span className="font-medium text-gray-700 dark:text-gray-300">{key}:</span>
                         <span className="text-gray-600 dark:text-gray-400">{value as string}</span>
@@ -349,17 +370,19 @@ export default function ProductPage() {
               </div>
             </div>
 
-            <div className="gsap-product-item text-center mt-12">
-              <Link
-                href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
-                className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold"
-              >
-                <span>Browse more {product.category}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
+            {product.category && (
+              <div className="gsap-product-item text-center mt-12">
+                <Link
+                  href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
+                  className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold"
+                >
+                  <span>Browse more {product.category}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
