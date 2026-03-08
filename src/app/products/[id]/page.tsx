@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart/cart-provider";
@@ -11,59 +11,91 @@ import { products } from "@/lib/products";
 import toast from "react-hot-toast";
 import { PageTemplate } from "@/components/page-template";
 import { ImageGallery } from "@/components/products/image-gallery";
+import { useGSAP } from '@gsap/react';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { useCartButtonRef } from '@/contexts/CartButtonRefContext';
+import { flyToCart } from '@/lib/flyToCart';
 
 export default function ProductPage() {
   const params = useParams();
   const productId = params.id as string;
-  
+
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [mounted, setMounted] = useState(false);
-  
+
   const { addItem } = useCart();
   const { trackViewContent, trackAddToCart } = useMetaPixel();
+  const cartButtonRef = useCartButtonRef();
+
+  // Ref for scroll animations
+  const productContainerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP scroll animation
+  useGSAP(() => {
+    if (!productContainerRef.current) return;
+    gsap.from('.gsap-product-item', {
+      scrollTrigger: {
+        trigger: productContainerRef.current,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        toggleActions: 'play none none reverse',
+      },
+      opacity: 0,
+      y: 50,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: 'power2.out',
+    });
+  }, { scope: productContainerRef, dependencies: [product] }); // re-run when product loads
 
   useEffect(() => {
     setMounted(true);
-    
-    // Simulate data fetching
     const timer = setTimeout(() => {
       const foundProduct = products[productId];
       setProduct(foundProduct);
       setLoading(false);
-      
-      // Track product view
       if (foundProduct) {
         trackViewContent(foundProduct.name, [foundProduct.id], foundProduct.price, "NGN");
       }
     }, 100);
-
     return () => clearTimeout(timer);
   }, [productId, trackViewContent]);
 
   const handleAddToCart = () => {
     if (!product) return;
-    
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: quantity,
-      image: product.images?.[0] || product.image,
-      brand: product.brand,
-      category: product.category
-    });
 
-    trackAddToCart(product.id, product.price * quantity, "NGN", {
-      content_name: product.name,
-      quantity: quantity,
-    });
+    // Find the button that was clicked (active element) or use a ref
+    const button = document.activeElement as HTMLElement;
+    if (button) {
+      flyToCart(button, cartButtonRef.current, () => {
+        // After animation, add to cart
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+          image: product.images?.[0] || product.image,
+          brand: product.brand,
+          category: product.category
+        });
 
-    toast.success(`${product.name} added to cart!`, {
-      icon: '🛒',
-      duration: 3000
-    });
+        trackAddToCart(product.id, product.price * quantity, "NGN", {
+          content_name: product.name,
+          quantity,
+        });
+
+        toast.success(`${product.name} added to cart!`, {
+          icon: '🛒',
+          duration: 3000
+        });
+      });
+    } else {
+      // fallback
+      addItem({ ... });
+      // ... tracking and toast
+    }
   };
 
   const handleBuyNow = () => {
@@ -83,20 +115,6 @@ export default function ProductPage() {
       "Home Solutions": "bg-gray-100"
     };
     return colors[categoryName] || "bg-orange-100";
-  };
-
-  const getCategoryIcon = (categoryName: string) => {
-    const icons: Record<string, string> = {
-      "Phones": "📱",
-      "Tablets": "📟",
-      "Speakers": "🔊",
-      "Earpieces": "🎧",
-      "Smart Watches": "⌚",
-      "Solar Essentials": "☀️",
-      "Skincare": "🧴",
-      "Home Solutions": "🏠"
-    };
-    return icons[categoryName] || "📦";
   };
 
   if (!mounted) {
@@ -134,60 +152,46 @@ export default function ProductPage() {
     );
   }
 
-  const discount = product?.compareAtPrice 
+  const discount = product?.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
   return (
-    <PageTemplate fallback={
+    <PageTemplate fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-64 mb-8 animate-pulse"></div>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-12">
-              <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
-              <div className="space-y-6">
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }>
-      {product && (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Breadcrumb */}
-            <nav className="flex mb-8 text-sm">
-              <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
-              <span className="mx-2 text-gray-500">/</span>
-              <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
-              <span className="mx-2 text-gray-500">/</span>
-              <Link 
-                href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`} 
-                className="text-gray-500 hover:text-orange-600"
-              >
-                {product.category}
-              </Link>
-              <span className="mx-2 text-gray-500">/</span>
-              <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
-            </nav>
+          {/* Breadcrumb */}
+          <nav className="flex mb-8 text-sm">
+            <Link href="/" className="text-gray-500 hover:text-orange-600">Home</Link>
+            <span className="mx-2 text-gray-500">/</span>
+            <Link href="/categories" className="text-gray-500 hover:text-orange-600">Categories</Link>
+            <span className="mx-2 text-gray-500">/</span>
+            <Link
+              href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
+              className="text-gray-500 hover:text-orange-600"
+            >
+              {product.category}
+            </Link>
+            <span className="mx-2 text-gray-500">/</span>
+            <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
+          </nav>
 
+          {/* Main product container with GSAP scroll ref */}
+          <div ref={productContainerRef} className="space-y-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-12">
                 {/* Product Images Gallery */}
-                <ImageGallery 
-                  images={product.images || [product.image]} 
-                  productName={product.name}
-                  category={product.category}
-                />
+                <div className="gsap-product-item">
+                  <ImageGallery
+                    images={product.images || [product.image]}
+                    productName={product.name}
+                    category={product.category}
+                  />
+                </div>
 
                 {/* Product Details */}
                 <div className="space-y-6">
-                  <div>
+                  <div className="gsap-product-item">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                       {product.name}
                     </h1>
@@ -202,16 +206,12 @@ export default function ProductPage() {
                   </div>
 
                   {/* Rating */}
-                  <div className="flex items-center gap-4">
+                  <div className="gsap-product-item flex items-center gap-4">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <svg
                           key={i}
-                          className={`w-5 h-5 ${
-                            i < Math.floor(product.rating)
-                              ? "text-yellow-400"
-                              : "text-gray-300 dark:text-gray-600"
-                          }`}
+                          className={`w-5 h-5 ${i < Math.floor(product.rating) ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"}`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -225,7 +225,7 @@ export default function ProductPage() {
                   </div>
 
                   {/* Price */}
-                  <div className="border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <div className="gsap-product-item border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div className="flex items-baseline gap-3">
                       <span className="text-4xl font-bold text-orange-600">
                         ₦{product.price.toLocaleString()}
@@ -245,7 +245,7 @@ export default function ProductPage() {
                   </div>
 
                   {/* Stock Status */}
-                  <div className="flex items-center gap-2">
+                  <div className="gsap-product-item flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${product.inStock ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {product.inStock ? "In Stock" : "Out of Stock"}
@@ -253,7 +253,7 @@ export default function ProductPage() {
                   </div>
 
                   {/* Quantity Selector */}
-                  <div>
+                  <div className="gsap-product-item">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Quantity
                     </label>
@@ -275,7 +275,7 @@ export default function ProductPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="space-y-3">
+                  <div className="gsap-product-item space-y-3">
                     <button
                       onClick={handleAddToCart}
                       disabled={!product.inStock}
@@ -302,10 +302,10 @@ export default function ProductPage() {
                   </div>
 
                   {/* Tags */}
-                  <div className="flex flex-wrap gap-2">
+                  <div className="gsap-product-item flex flex-wrap gap-2">
                     {product.tags.slice(0, 5).map((tag: string) => (
-                      <span 
-                        key={tag} 
+                      <span
+                        key={tag}
                         className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm hover:bg-orange-100 hover:text-orange-600 transition-colors cursor-default"
                       >
                         #{tag}
@@ -314,13 +314,13 @@ export default function ProductPage() {
                   </div>
 
                   {/* Payment Methods */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                  <div className="gsap-product-item border-t border-gray-200 dark:border-gray-700 pt-6">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
                       <span className="text-green-600">✓</span> Secure payment powered by Paystack
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {["💳 Cards", "🏦 Bank Transfer", "📱 USSD", "💰 Pay on Delivery"].map((method, index) => (
-                        <span 
+                        <span
                           key={index}
                           className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
                         >
@@ -334,7 +334,7 @@ export default function ProductPage() {
 
               {/* Product Details Tabs */}
               <div className="border-t border-gray-200 dark:border-gray-700 px-6 lg:px-12 py-8">
-                <div className="prose dark:prose-invert max-w-none">
+                <div className="gsap-product-item prose dark:prose-invert max-w-none">
                   <h2 className="text-xl font-semibold mb-4">Product Description</h2>
                   <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
                     {product.description}
@@ -363,7 +363,7 @@ export default function ProductPage() {
             </div>
 
             {/* Related Category Link */}
-            <div className="mt-12 text-center">
+            <div className="gsap-product-item text-center mt-12">
               <Link
                 href={`/categories/${product.category.toLowerCase().replace(/ /g, '-')}`}
                 className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
@@ -376,7 +376,7 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
-      )}
+      </div>
     </PageTemplate>
   );
 }

@@ -63,9 +63,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     return icons[category || ""] || "📦";
   };
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -79,7 +77,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-80 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-hidden">
@@ -104,7 +102,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <div className="ml-3 flex h-7 items-center">
                           <button
                             type="button"
-                            className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
+                            className="relative -m-2 p-2 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
                             onClick={onClose}
                           >
                             <XMarkIcon className="h-6 w-6" />
@@ -133,14 +131,14 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               </p>
                               <Link
                                 href="/"
-                                className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                                className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg"
                                 onClick={onClose}
                               >
                                 Continue Shopping
                               </Link>
                             </div>
                           ) : (
-                            <ul role="list" className="-my-6 divide-y divide-gray-200 dark:divide-gray-700">
+                            <ul role="list" className="-my-6 divide-y divide-gray-200 dark:divide-gray-800">
                               {items.map((item) => (
                                 <li key={item.id} className="flex py-6">
                                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
@@ -151,7 +149,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         className="h-full w-full object-cover object-center"
                                       />
                                     ) : (
-                                      <div className="h-full w-full flex items-center justify-center">
+                                      <div className="h-full w-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                                         <span className="text-3xl">{getCategoryIcon(item.category)}</span>
                                       </div>
                                     )}
@@ -161,41 +159,36 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     <div>
                                       <div className="flex justify-between text-base font-medium text-gray-900 dark:text-white">
                                         <h3>
-                                          <Link href={`/products/${item.id}`} onClick={onClose}>
+                                          <Link href={`/products/${item.id}`} onClick={onClose} className="hover:text-orange-600 dark:hover:text-orange-400">
                                             {item.name}
                                           </Link>
                                         </h3>
-                                        <p className="ml-4">
-                                          ₦{(item.price * item.quantity).toLocaleString()}
-                                        </p>
+                                        <p className="ml-4">₦{(item.price * item.quantity).toLocaleString()}</p>
                                       </div>
                                       {item.brand && (
-                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                          {item.brand}
-                                        </p>
+                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{item.brand}</p>
                                       )}
                                     </div>
                                     <div className="flex flex-1 items-end justify-between text-sm">
                                       <div className="flex items-center gap-2">
                                         <button
                                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                          className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                                          className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                         >
                                           -
                                         </button>
-                                        <span className="w-8 text-center font-medium">{item.quantity}</span>
+                                        <span className="w-8 text-center font-medium text-gray-900 dark:text-white">{item.quantity}</span>
                                         <button
                                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                          className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                                          className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                         >
                                           +
                                         </button>
                                       </div>
-
                                       <button
                                         type="button"
                                         onClick={() => handleRemoveItem(item.id)}
-                                        className="font-medium text-orange-600 hover:text-orange-500"
+                                        className="font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
                                       >
                                         Remove
                                       </button>
@@ -210,7 +203,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </div>
 
                     {items.length > 0 && (
-                      <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-6 sm:px-6">
+                      <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-6 sm:px-6">
                         <div className="flex justify-between text-base font-medium text-gray-900 dark:text-white">
                           <p>Subtotal</p>
                           <p>₦{total.toLocaleString()}</p>
@@ -218,14 +211,17 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                           Shipping calculated at checkout
                         </p>
-                        <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                          Enter your delivery address at checkout to see exact shipping costs.
+                        </p>
+                        <p className="mt-1 text-xs text-green-600 dark:text-green-400">
                           ✦ Free shipping in Lagos & Abuja
                         </p>
                         <div className="mt-6">
                           <Link
                             href="/checkout"
                             onClick={handleCheckoutClick}
-                            className="flex items-center justify-center rounded-md border border-transparent bg-orange-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-orange-700"
+                            className="flex items-center justify-center rounded-md border border-transparent bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 text-base font-medium shadow-sm"
                           >
                             Checkout ({itemCount} {itemCount === 1 ? 'item' : 'items'})
                           </Link>
@@ -235,7 +231,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             or{" "}
                             <button
                               type="button"
-                              className="font-medium text-orange-600 hover:text-orange-500"
+                              className="font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
                               onClick={onClose}
                             >
                               Continue Shopping
