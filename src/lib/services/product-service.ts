@@ -17,9 +17,6 @@ export interface Product {
   tags: string[]
 }
 
-/**
- * Fetch all products, optionally with filters.
- */
 export async function getProducts(options?: {
   category?: string
   limit?: number
@@ -31,7 +28,6 @@ export async function getProducts(options?: {
   if (options?.category) {
     query = query.eq('category', options.category)
   }
-
   if (options?.limit) {
     query = query.limit(options.limit)
   }
@@ -48,9 +44,6 @@ export async function getProducts(options?: {
   return data as Product[]
 }
 
-/**
- * Fetch a single product by ID.
- */
 export async function getProductById(id: string): Promise<Product | null> {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -66,16 +59,10 @@ export async function getProductById(id: string): Promise<Product | null> {
   return data as Product | null
 }
 
-/**
- * Fetch products by category.
- */
 export async function getProductsByCategory(category: string, limit = 20) {
   return getProducts({ category, limit })
 }
 
-/**
- * Fetch the most recent products (useful for homepage featured section).
- */
 export async function getRecentProducts(limit = 8) {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -86,24 +73,6 @@ export async function getRecentProducts(limit = 8) {
 
   if (error) {
     console.error('Error fetching recent products:', error)
-    return []
-  }
-  return data as Product[]
-}
-
-/**
- * Search products by name or description (simple ILIKE).
- */
-export async function searchProducts(query: string, limit = 20) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-    .limit(limit)
-
-  if (error) {
-    console.error('Error searching products:', error)
     return []
   }
   return data as Product[]

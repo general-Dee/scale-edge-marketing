@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Product } from '@/lib/services/product-service'
+import { DeleteButton } from './_components/DeleteButton' // <-- import
 
 export default async function AdminProductsPage() {
   const supabase = await createClient()
@@ -47,11 +48,7 @@ export default async function AdminProductsPage() {
                   <Link href={`/admin/products/${product.id}/edit`} className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 mr-4">
                     Edit
                   </Link>
-                  <form action={`/admin/products/${product.id}/delete`} method="post" className="inline">
-                    <button type="submit" className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onClick={(e) => { if (!confirm('Are you sure?')) e.preventDefault(); }}>
-                      Delete
-                    </button>
-                  </form>
+                  <DeleteButton productId={product.id} />
                 </td>
               </tr>
             ))}
