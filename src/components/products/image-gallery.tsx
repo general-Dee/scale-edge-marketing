@@ -85,13 +85,16 @@ export function ImageGallery({ images, productName, category }: ImageGalleryProp
               x: { type: "spring", stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 }
             }}
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0"
           >
             {images[selectedImage] ? (
-              <img
+              <Image
                 src={images[selectedImage]}
                 alt={`${productName} - View ${selectedImage + 1}`}
-                className="w-full h-full object-contain"
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority={selectedImage === 0}
               />
             ) : (
               <div className={`w-full h-full ${getCategoryColor(category)} flex items-center justify-center`}>
@@ -148,10 +151,12 @@ export function ImageGallery({ images, productName, category }: ImageGalleryProp
               }`}
             >
               {image ? (
-                <img
+                <Image
                   src={image}
                   alt={`${productName} thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="80px"
                 />
               ) : (
                 <div className={`w-full h-full ${getCategoryColor(category)} flex items-center justify-center`}>

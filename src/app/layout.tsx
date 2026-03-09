@@ -9,7 +9,7 @@ import { CartButtonRefProvider } from "@/contexts/CartButtonRefContext";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Scale-Edge", // 👈 changed to just "Scale-Edge"
+  title: "Scale-Edge",
   description: "Premium Products for the Modern Nigerian Consumer",
 };
 

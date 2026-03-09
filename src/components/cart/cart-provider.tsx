@@ -32,7 +32,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const { trackEvent, trackAddToCart } = useMetaPixel();
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage only after mount
   useEffect(() => {
     setMounted(true);
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
@@ -57,49 +57,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = (newItem: CartItem) => {
     setItems(currentItems => {
       const existingItemIndex = currentItems.findIndex(item => item.id === newItem.id);
-      
       if (existingItemIndex >= 0) {
-        // Item exists - update quantity
         const updatedItems = [...currentItems];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           quantity: updatedItems[existingItemIndex].quantity + newItem.quantity
         };
-        
-        // Track add to cart event
         try {
           trackAddToCart(newItem.id, newItem.price * newItem.quantity, "NGN", {
             content_name: newItem.name,
             action: "increase_quantity",
             cart_total: updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
           });
-        } catch (error) {
-          console.log('Tracking unavailable');
-        }
-        
+        } catch (error) { console.log('Tracking unavailable'); }
         return updatedItems;
       } else {
-        // New item - add to cart
         try {
           trackAddToCart(newItem.id, newItem.price * newItem.quantity, "NGN", {
             content_name: newItem.name,
             action: "first_add",
             cart_total: [...currentItems, newItem].reduce((sum, item) => sum + (item.price * item.quantity), 0)
           });
-        } catch (error) {
-          console.log('Tracking unavailable');
-        }
-        
+        } catch (error) { console.log('Tracking unavailable'); }
         return [...currentItems, newItem];
       }
     });
   };
 
   const removeItem = (id: string) => {
-    setItems(currentItems => {
-      const updatedItems = currentItems.filter(item => item.id !== id);
-      return updatedItems;
-    });
+    setItems(currentItems => currentItems.filter(item => item.id !== id));
   };
 
   const updateQuantity = (id: string, quantity: number) => {
@@ -107,7 +93,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem(id);
       return;
     }
-    
     setItems(currentItems =>
       currentItems.map(item =>
         item.id === id ? { ...item, quantity } : item
@@ -120,7 +105,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(CART_STORAGE_KEY);
   };
 
-  // Computed values
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 

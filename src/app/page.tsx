@@ -4,10 +4,11 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useGSAP } from '@gsap/react';
 import { gsap, SplitText } from '@/lib/gsap';
 import { getRecentProducts } from '@/lib/services/product-service';
-import { categories } from '@/lib/products'; // keep categories (or fetch later)
+import { categories } from '@/lib/products';
 import { ProductGridSkeleton } from "@/components/skeletons";
 
 export default function HomePage() {
@@ -18,7 +19,6 @@ export default function HomePage() {
 
   const headlineRef = useRef<HTMLHeadingElement>(null);
 
-  // GSAP SplitText animation
   useGSAP(() => {
     if (!headlineRef.current) return;
     const split = new SplitText(headlineRef.current, { type: 'words,chars' });
@@ -32,7 +32,6 @@ export default function HomePage() {
     });
   }, { scope: headlineRef });
 
-  // Fetch recent products from Supabase
   useEffect(() => {
     setMounted(true);
     const fetchProducts = async () => {
@@ -77,29 +76,19 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero Section */}
+      {/* Hero Section – unchanged */}
       <section className="relative bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
             <div>
-              <h1
-                ref={headlineRef}
-                className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
-              >
+              <h1 ref={headlineRef} className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
                 Premium Products for the{" "}
-                <span className="text-orange-600 dark:text-orange-400">
-                  Modern Nigerian
-                </span>{" "}
-                Home
+                <span className="text-orange-600 dark:text-orange-400">Modern Nigerian</span> Home
               </h1>
-
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
                 Discover our curated collection of premium electronics, solar essentials,
                 natural skincare, and home solutions. Shop top brands like Apple, Samsung, Sony, and Google Pixel.
               </p>
-
-              {/* Trust Signals */}
               <div className="flex flex-wrap gap-6 mb-8">
                 {[
                   { icon: "✓", bg: "bg-green-100 dark:bg-green-900/30", text: "10,000+", subtext: "Happy Customers" },
@@ -118,20 +107,13 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-
-              {/* CTA Button */}
-              <Link
-                href="#featured"
-                className="inline-flex items-center px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors text-lg shadow-lg"
-              >
+              <Link href="#featured" className="inline-flex items-center px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors text-lg shadow-lg">
                 Shop Now
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
             </div>
-
-            {/* Category Showcase */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {categories.map((category, index) => (
                 <Link
@@ -139,9 +121,7 @@ export default function HomePage() {
                   href={`/categories/${category.name.toLowerCase().replace(/ /g, '-')}`}
                   className={`${getCategoryColor(category.name)} rounded-xl p-4 shadow-lg hover:shadow-xl transition-all block text-center`}
                 >
-                  <span className="text-3xl sm:text-4xl mb-2 block text-gray-900 dark:text-white">
-                    {category.icon}
-                  </span>
+                  <span className="text-3xl sm:text-4xl mb-2 block text-gray-900 dark:text-white">{category.icon}</span>
                   <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{category.name}</h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">{category.count} products</p>
                 </Link>
@@ -155,12 +135,8 @@ export default function HomePage() {
       <section id="featured" className="py-24 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Featured Products
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Hand-picked bestsellers from our premium collection
-            </p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">Featured Products</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Hand-picked bestsellers from our premium collection</p>
           </div>
 
           {loading ? (
@@ -177,36 +153,35 @@ export default function HomePage() {
                   href={`/products/${product.id}`}
                   className="group bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-xl transition-all"
                 >
-                  <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 overflow-hidden group-hover:scale-105 transition-transform">
                     {product.image_urls?.[0] ? (
-                      <img
+                      <Image
                         src={product.image_urls[0]}
                         alt={product.name}
-                        className="w-full h-full object-contain"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                       />
                     ) : (
-                      <span className="text-5xl text-gray-600 dark:text-gray-400">
-                        {product.category === "Phones" ? "📱" :
-                         product.category === "Tablets" ? "📟" :
-                         product.category === "Speakers" ? "🔊" :
-                         product.category === "Earpieces" ? "🎧" :
-                         product.category === "Smart Watches" ? "⌚" :
-                         product.category === "Solar Essentials" ? "☀️" :
-                         product.category === "Skincare" ? "🧴" :
-                         "🏠"}
-                      </span>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-5xl text-gray-600 dark:text-gray-400">
+                          {product.category === "Phones" ? "📱" :
+                           product.category === "Tablets" ? "📟" :
+                           product.category === "Speakers" ? "🔊" :
+                           product.category === "Earpieces" ? "🎧" :
+                           product.category === "Smart Watches" ? "⌚" :
+                           product.category === "Solar Essentials" ? "☀️" :
+                           product.category === "Skincare" ? "🧴" : "🏠"}
+                        </span>
+                      </div>
                     )}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
                   <div className="flex items-center justify-between">
-                    <p className="text-orange-600 dark:text-orange-400 font-bold">
-                      ₦{product.price.toLocaleString()}
-                    </p>
+                    <p className="text-orange-600 dark:text-orange-400 font-bold">₦{product.price.toLocaleString()}</p>
                     {product.compare_at_price && (
-                      <p className="text-xs text-gray-400 line-through">
-                        ₦{product.compare_at_price.toLocaleString()}
-                      </p>
+                      <p className="text-xs text-gray-400 line-through">₦{product.compare_at_price.toLocaleString()}</p>
                     )}
                   </div>
                   {product.tags?.includes("bestseller") && (
@@ -233,18 +208,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Brand Showcase */}
+      {/* Brand Showcase – unchanged */}
       <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">
-            Top Brands Available
-          </h2>
+          <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">Top Brands Available</h2>
           <div className="flex flex-wrap justify-center gap-8 items-center">
-            {["Apple", "Samsung", "Sony", "Google Pixel", "SolarTech", "Naija Naturals"].map((brand, index) => (
-              <div
-                key={brand}
-                className="text-xl font-semibold text-gray-700 dark:text-gray-300 px-4 py-2 bg-white dark:bg-gray-700 rounded-lg shadow"
-              >
+            {["Apple", "Samsung", "Sony", "Google Pixel", "SolarTech", "Naija Naturals"].map((brand) => (
+              <div key={brand} className="text-xl font-semibold text-gray-700 dark:text-gray-300 px-4 py-2 bg-white dark:bg-gray-700 rounded-lg shadow">
                 {brand}
               </div>
             ))}

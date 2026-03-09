@@ -17,7 +17,7 @@ export type PixelEvent =
   | "CompleteRegistration"
   | "Contact"
   | "Subscribe"
-  | "CustomizeProduct";  // Added this line
+  | "CustomizeProduct";
 
 export interface PixelParams {
   content_name?: string;
@@ -42,23 +42,41 @@ interface MetaPixelContextType {
 
 const MetaPixelContext = createContext<MetaPixelContextType | undefined>(undefined);
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "YOUR_PIXEL_ID";
+const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export function MetaPixelProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPixelLoaded, setIsPixelLoaded] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  // Only attempt to load the pixel if we have a valid ID
+  const shouldLoadPixel = PIXEL_ID && PIXEL_ID !== "YOUR_PIXEL_ID";
 
   useEffect(() => {
-    if (isPixelLoaded && typeof window !== "undefined" && window.fbq) {
+    if (shouldLoadPixel && scriptLoaded && typeof window !== "undefined" && window.fbq) {
+      setIsPixelLoaded(true);
+      // Track initial page view
+      window.fbq("track", "PageView");
+    }
+  }, [scriptLoaded, shouldLoadPixel]);
+
+  useEffect(() => {
+    if (isPixelLoaded && window.fbq) {
+      // Track page views on route change
       window.fbq("track", "PageView");
     }
   }, [pathname, searchParams, isPixelLoaded]);
 
+  // No-op functions when pixel not loaded
   const trackEvent = (event: PixelEvent, params: PixelParams = {}) => {
-    if (typeof window !== "undefined" && window.fbq) {
+    if (isPixelLoaded && window.fbq) {
       const eventId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
       window.fbq("track", event, params, { eventID: eventId });
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Meta Pixel not loaded – tracking suppressed', event, params);
+      }
     }
   };
 
@@ -111,34 +129,37 @@ export function MetaPixelProvider({ children }: { children: React.ReactNode }) {
         trackLead,
       }}
     >
-      <Script
-        id="meta-pixel"
-        strategy="afterInteractive"
-        onLoad={() => setIsPixelLoaded(true)}
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${PIXEL_ID}');
-            fbq('track', 'PageView');
-          `,
-        }}
-      />
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
-          alt=""
+      {shouldLoadPixel && (
+        <Script
+          id="meta-pixel"
+          strategy="afterInteractive"
+          onLoad={() => setScriptLoaded(true)}
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '${PIXEL_ID}');
+            `,
+          }}
         />
-      </noscript>
+      )}
+      {shouldLoadPixel && (
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
+            alt=""
+          />
+        </noscript>
+      )}
       {children}
     </MetaPixelContext.Provider>
   );

@@ -39,15 +39,8 @@ export default function SuccessContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Payment Successful! 🎉
-          </h1>
-
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Thank you for your order! We've received your payment and are processing it.
-          </p>
-
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Payment Successful! 🎉</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">Thank you for your order! We've received your payment and are processing it.</p>
           {reference && (
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6 text-left">
               <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Transaction Details</h2>
@@ -59,16 +52,9 @@ export default function SuccessContent() {
               </div>
             </div>
           )}
-
           <div className="space-y-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              We've sent a confirmation email with your order details.
-            </p>
-
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors"
-            >
+            <p className="text-sm text-gray-500 dark:text-gray-400">We've sent a confirmation email with your order details.</p>
+            <Link href="/" className="inline-flex items-center justify-center px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors">
               Continue Shopping
             </Link>
           </div>
