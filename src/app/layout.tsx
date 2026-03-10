@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { AnimationProvider } from "@/components/providers/animation-provider";
 import { CartButtonRefProvider } from "@/contexts/CartButtonRefContext";
 import { Suspense } from "react";
+import WhatsAppButton from "@/components/whatsapp-button"; // default import
 
 export const metadata: Metadata = {
   title: "Scale-Edge",
@@ -41,6 +42,7 @@ export default function RootLayout({
                       },
                     }}
                   />
+                  <WhatsAppButton /> {/* uses default phone number */}
                 </AnimationProvider>
               </CartProvider>
             </MetaPixelProvider>
