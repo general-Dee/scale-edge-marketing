@@ -24,7 +24,7 @@ interface PaystackResponse {
   message: string;
 }
 
-export function PaystackButton({
+export default function PaystackButton({
   email,
   firstName,
   lastName,
