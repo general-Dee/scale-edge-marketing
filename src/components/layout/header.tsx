@@ -4,17 +4,23 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/cart/cart-provider";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useCartButtonRef } from "@/contexts/CartButtonRefContext";
+import { createClient } from '@/lib/supabase/client';
 
 export function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { itemCount } = useCart();
   const cartButtonRef = useCartButtonRef();
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
   }, []);
 
   // Return a placeholder with the same structure to avoid hydration mismatch
@@ -25,7 +31,7 @@ export function Header() {
           <Link href="/" className="text-xl font-bold text-orange-600 dark:text-orange-400">
             Scale-Edge
           </Link>
-          <div className="w-10 h-10" /> {/* placeholder for cart icon */}
+          <div className="w-10 h-10" />
         </nav>
       </header>
     );
@@ -38,19 +44,38 @@ export function Header() {
           <Link href="/" className="text-xl font-bold text-orange-600 dark:text-orange-400">
             Scale-Edge
           </Link>
-          <button
-            ref={cartButtonRef}
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-700 dark:text-white"
-            aria-label="Open cart"
-          >
-            <ShoppingCartIcon className="w-6 h-6" />
-            {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                {itemCount}
-              </span>
+          <div className="flex items-center gap-4">
+            {/* User menu */}
+            {user ? (
+              <Link
+                href="/account"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-700 dark:text-white"
+                aria-label="Account"
+              >
+                <UserIcon className="w-6 h-6" />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400"
+              >
+                Sign In
+              </Link>
             )}
-          </button>
+            <button
+              ref={cartButtonRef}
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-700 dark:text-white"
+              aria-label="Open cart"
+            >
+              <ShoppingCartIcon className="w-6 h-6" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {itemCount}
+                </span>
+              )}
+            </button>
+          </div>
         </nav>
       </header>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

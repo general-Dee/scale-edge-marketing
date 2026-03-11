@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { createClient } from '@/lib/supabase/client';
 import { Auth } from '@supabase/auth-ui-react';
@@ -13,24 +13,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
-
-    // Check if we already have a session (e.g., from magic link)
+    // If already logged in, redirect to account page
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        console.log('Already have session, redirecting to /admin');
-        router.push('/admin');
-      }
+      if (session) router.push('/account');
     });
-
-    // Listen for auth changes (when user signs in)
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        console.log('Auth state changed, redirecting to /admin');
-        router.push('/admin');
-      }
-    });
-
-    return () => listener?.subscription.unsubscribe();
   }, [router, supabase]);
 
   if (!mounted) {
@@ -45,16 +31,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-lg shadow">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">Admin Login</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
+          Sign in / Sign up
+        </h1>
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           theme="dark"
           providers={[]}
-          redirectTo={`${window.location.origin}/admin`}
-          onlyThirdPartyProviders={false}
+          redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/account`}
         />
       </div>
     </div>

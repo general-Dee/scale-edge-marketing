@@ -37,7 +37,6 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // Check if user is in admins table
     const { data: admin } = await supabase
       .from('admins')
       .select('id')
@@ -49,9 +48,16 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Protect account routes
+  if (req.nextUrl.pathname.startsWith('/account')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', req.url))
+    }
+  }
+
   return res
 }
 
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: '/:path*', // Run on all routes – adjust for performance if needed
 }
