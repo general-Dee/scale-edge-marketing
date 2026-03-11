@@ -17,6 +17,9 @@ export interface Product {
   tags: string[]
 }
 
+/**
+ * Fetch all products, optionally with filters.
+ */
 export async function getProducts(options?: {
   category?: string
   limit?: number
@@ -44,6 +47,9 @@ export async function getProducts(options?: {
   return data as Product[]
 }
 
+/**
+ * Fetch a single product by ID (UUID).
+ */
 export async function getProductById(id: string): Promise<Product | null> {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -53,16 +59,40 @@ export async function getProductById(id: string): Promise<Product | null> {
     .maybeSingle()
 
   if (error) {
-    console.error('Error fetching product:', error)
+    console.error('Error fetching product by id:', error)
     return null
   }
   return data as Product | null
 }
 
+/**
+ * Fetch a single product by slug (URL-friendly name).
+ */
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Error fetching product by slug:', error)
+    return null
+  }
+  return data as Product | null
+}
+
+/**
+ * Fetch products by category.
+ */
 export async function getProductsByCategory(category: string, limit = 20) {
   return getProducts({ category, limit })
 }
 
+/**
+ * Fetch the most recent products.
+ */
 export async function getRecentProducts(limit = 8) {
   const supabase = createClient()
   const { data, error } = await supabase

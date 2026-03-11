@@ -9,7 +9,7 @@ import { useCart } from "@/components/cart/cart-provider";
 import toast from "react-hot-toast";
 import { PageTemplate } from "@/components/page-template";
 
-// Dynamically import PaystackButton (default export)
+// Dynamically import PaystackButton
 const PaystackButton = nextDynamic(
   () => import('@/components/checkout/paystack-button'),
   {
@@ -61,14 +61,6 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleContinue = () => {
-    if (!formData.email || !formData.firstName || !formData.lastName || !formData.phone) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    document.getElementById("payment-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const shippingCost = SHIPPING_COSTS[formData.state] ?? DEFAULT_SHIPPING;
@@ -250,29 +242,17 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleContinue}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                >
-                  Continue to Payment
-                </button>
-
-                {/* Payment Section */}
-                <div id="payment-section" className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                {/* Payment Section – always visible, no intermediate button */}
+                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                     3. Payment
                   </h2>
 
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                     <h3 className="font-medium text-gray-900 dark:text-white mb-4">Pay with Paystack</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      Secure payments powered by Paystack. We accept:
+                      Secure payments powered by Paystack.
                     </p>
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      <span className="px-3 py-1 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full text-sm">💳 Cards</span>
-                      <span className="px-3 py-1 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full text-sm">🏦 Bank Transfer</span>
-                      <span className="px-3 py-1 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full text-sm">📱 USSD</span>
-                    </div>
 
                     <PaystackButton
                       email={formData.email}
@@ -287,7 +267,7 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
                     By completing your purchase, you agree to our Terms of Service and Privacy Policy.
                     Your payment information is securely processed by Paystack.
                   </p>
@@ -295,7 +275,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Order Summary */}
+            {/* Order Summary (unchanged) */}
             <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sticky top-24">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
@@ -358,7 +338,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Trust Badge */}
                 <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
