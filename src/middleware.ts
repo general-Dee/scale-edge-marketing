@@ -34,7 +34,8 @@ export async function middleware(req: NextRequest) {
   // Protect admin routes
   if (req.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
-      return NextResponse.redirect(new URL('/login', req.url))
+      // FIXED: Redirect to admin login page, not customer login
+      return NextResponse.redirect(new URL('/admin/login', req.url))
     }
 
     const { data: admin } = await supabase
@@ -58,6 +59,7 @@ export async function middleware(req: NextRequest) {
   return res
 }
 
+// OPTIMIZED: Only run middleware on admin and account routes
 export const config = {
-  matcher: '/:path*', // Run on all routes – adjust for performance if needed
+  matcher: ['/admin/:path*', '/account/:path*'],
 }

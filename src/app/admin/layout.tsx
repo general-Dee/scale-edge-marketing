@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { signOut } from '@/lib/actions/auth-actions'
 
 export default async function AdminLayout({
   children,
@@ -11,10 +12,9 @@ export default async function AdminLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/admin/login') // FIXED
   }
 
-  // Double‑check admin status (already done in middleware, but safe)
   const { data: admin } = await supabase
     .from('admins')
     .select('id')
@@ -41,10 +41,13 @@ export default async function AdminLayout({
                 <Link href="/admin/orders" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white">
                   Orders
                 </Link>
+                <Link href="/admin/customers" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white">
+                  Customers
+                </Link>
               </div>
             </div>
             <div className="flex items-center">
-              <form action="/auth/signout" method="post">
+              <form action={signOut}>
                 <button type="submit" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   Sign Out
                 </button>

@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
+import { cache } from 'react'
 
 export interface Product {
   id: string
@@ -20,12 +21,12 @@ export interface Product {
 /**
  * Fetch all products, optionally with filters.
  */
-export async function getProducts(options?: {
+export const getProducts = cache(async (options?: {
   category?: string
   limit?: number
   offset?: number
-}) {
-  const supabase = createClient()
+}) => {
+  const supabase = await createClient()
   let query = supabase.from('products').select('*')
 
   if (options?.category) {
@@ -45,13 +46,13 @@ export async function getProducts(options?: {
     return []
   }
   return data as Product[]
-}
+})
 
 /**
  * Fetch a single product by ID (UUID).
  */
-export async function getProductById(id: string): Promise<Product | null> {
-  const supabase = createClient()
+export const getProductById = cache(async (id: string): Promise<Product | null> => {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -63,13 +64,13 @@ export async function getProductById(id: string): Promise<Product | null> {
     return null
   }
   return data as Product | null
-}
+})
 
 /**
  * Fetch a single product by slug (URL-friendly name).
  */
-export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = createClient()
+export const getProductBySlug = cache(async (slug: string): Promise<Product | null> => {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -81,20 +82,20 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return null
   }
   return data as Product | null
-}
+})
 
 /**
  * Fetch products by category.
  */
-export async function getProductsByCategory(category: string, limit = 20) {
+export const getProductsByCategory = cache(async (category: string, limit = 20) => {
   return getProducts({ category, limit })
-}
+})
 
 /**
  * Fetch the most recent products.
  */
-export async function getRecentProducts(limit = 8) {
-  const supabase = createClient()
+export const getRecentProducts = cache(async (limit = 8) => {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -106,4 +107,4 @@ export async function getRecentProducts(limit = 8) {
     return []
   }
   return data as Product[]
-}
+})
