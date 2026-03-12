@@ -13,7 +13,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
-    // If already logged in, redirect to account page
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.push('/account');
     });
@@ -40,7 +39,7 @@ export default function LoginPage() {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           theme="dark"
-          providers={[]}
+          providers={['google']}   // ← this adds the Google button
           redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/account`}
         />
       </div>

@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getProductsByCategory, Product } from "@/lib/services/product-service";
-import { categories } from "@/lib/products";
+import { getProductsByCategory } from "@/lib/services/product-service";
+import { categories, getCategoryIcon, getCategoryColor } from "@/lib/products";
 import { PageTemplate } from "@/components/page-template";
 import { ProductGridSkeleton } from "@/components/skeletons";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -16,23 +16,22 @@ export default function CategoryPage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [categoryName, setCategoryName] = useState<string>("");
+  const [category, setCategory] = useState<typeof categories[0] | undefined>();
 
   useEffect(() => {
-    // Convert slug back to category name
-    const name = slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    setCategoryName(name);
+    // Find category by slug
+    const found = categories.find(c => c.slug === slug);
+    setCategory(found);
 
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await getProductsByCategory(name);
+        // Convert slug back to category name (e.g., "solar-solutions" -> "Solar Solutions")
+        const categoryName = found?.name || slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        const data = await getProductsByCategory(categoryName);
         setProducts(data);
       } catch (err) {
         console.error("Failed to fetch products:", err);
@@ -43,34 +42,6 @@ export default function CategoryPage() {
     };
     fetchProducts();
   }, [slug]);
-
-  const getCategoryIcon = (name: string) => {
-    const icons: Record<string, string> = {
-      "Phones": "📱",
-      "Tablets": "📟",
-      "Speakers": "🔊",
-      "Earpieces": "🎧",
-      "Smart Watches": "⌚",
-      "Solar Essentials": "☀️",
-      "Skincare": "🧴",
-      "Home Solutions": "🏠"
-    };
-    return icons[name] || "📦";
-  };
-
-  const getCategoryColor = (name: string) => {
-    const colors: Record<string, string> = {
-      "Phones": "bg-blue-100",
-      "Tablets": "bg-purple-100",
-      "Speakers": "bg-indigo-100",
-      "Earpieces": "bg-pink-100",
-      "Smart Watches": "bg-cyan-100",
-      "Solar Essentials": "bg-orange-100",
-      "Skincare": "bg-green-100",
-      "Home Solutions": "bg-gray-100"
-    };
-    return colors[name] || "bg-orange-100";
-  };
 
   if (loading) {
     return (
@@ -113,6 +84,8 @@ export default function CategoryPage() {
       </PageTemplate>
     );
   }
+
+  const categoryName = category?.name || slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   return (
     <PageTemplate>
