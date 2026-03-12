@@ -7,11 +7,11 @@ import { Toaster } from "react-hot-toast";
 import { AnimationProvider } from "@/components/providers/animation-provider";
 import { CartButtonRefProvider } from "@/contexts/CartButtonRefContext";
 import { Suspense } from "react";
-import WhatsAppButton from "@/components/whatsapp-button"; // default import
+import WhatsAppButton from "@/components/whatsapp-button";
 
 export const metadata: Metadata = {
-  title: "Scale-Edge",
-  description: "Premium Products for the Modern Nigerian Consumer",
+  title: "Scale-Edge Marketing",
+  description: "Premium gadgets and solar solutions for the modern Nigerian consumer",
 };
 
 export default function RootLayout({
@@ -23,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script src="https://js.paystack.co/v1/inline.js" async />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900">
         <Suspense fallback={null}>
@@ -42,7 +43,7 @@ export default function RootLayout({
                       },
                     }}
                   />
-                  <WhatsAppButton /> {/* uses default phone number */}
+                  <WhatsAppButton phoneNumber="2348165510842" />
                 </AnimationProvider>
               </CartProvider>
             </MetaPixelProvider>

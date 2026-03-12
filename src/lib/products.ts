@@ -1,7 +1,3 @@
-// src/lib/products.ts
-// This file contains category definitions and helper functions.
-// Product data is stored in Supabase.
-
 export interface Product {
   id: string;
   name: string;
@@ -19,7 +15,6 @@ export interface Product {
   tags: string[];
 }
 
-// Category definitions for navigation and UI
 export const categories = [
   { name: "Phones", icon: "📱", slug: "phones" },
   { name: "Tablets", icon: "📟", slug: "tablets" },
@@ -30,7 +25,6 @@ export const categories = [
   { name: "Solar Solutions", icon: "☀️", slug: "solar-solutions" },
 ];
 
-// Helper to get category icon (used in product pages and category cards)
 export function getCategoryIcon(categoryName: string): string {
   const icons: Record<string, string> = {
     "Phones": "📱",
@@ -44,7 +38,6 @@ export function getCategoryIcon(categoryName: string): string {
   return icons[categoryName] || "📦";
 }
 
-// Helper to get category color (for backgrounds in light mode)
 export function getCategoryColor(categoryName: string): string {
   const colors: Record<string, string> = {
     "Phones": "bg-blue-100",
@@ -58,7 +51,6 @@ export function getCategoryColor(categoryName: string): string {
   return colors[categoryName] || "bg-gray-100";
 }
 
-// Helper to get category gradient (for category cards)
 export function getCategoryGradient(categoryName: string): string {
   const gradients: Record<string, string> = {
     "Phones": "from-blue-500 to-blue-600",
@@ -70,18 +62,4 @@ export function getCategoryGradient(categoryName: string): string {
     "Solar Solutions": "from-amber-500 to-amber-600",
   };
   return gradients[categoryName] || "from-gray-500 to-gray-600";
-}
-
-// Helper to get dark mode variant of category color (used in homepage)
-export function getCategoryColorDark(categoryName: string): string {
-  const colors: Record<string, string> = {
-    "Phones": "dark:bg-blue-900/30",
-    "Tablets": "dark:bg-purple-900/30",
-    "Laptops": "dark:bg-indigo-900/30",
-    "Headphones": "dark:bg-pink-900/30",
-    "Speakers": "dark:bg-cyan-900/30",
-    "Smart Watches": "dark:bg-green-900/30",
-    "Solar Solutions": "dark:bg-amber-900/30",
-  };
-  return colors[categoryName] || "dark:bg-gray-800";
 }
