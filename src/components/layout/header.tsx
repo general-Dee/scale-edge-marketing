@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCart } from '@/components/cart/cart-provider';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { CurrencySelector } from '@/components/currency-selector';
 import { UserMenu } from '@/components/user-menu';
 import { CartDrawer } from '@/components/cart/cart-drawer';
@@ -11,10 +11,30 @@ import { CartDrawer } from '@/components/cart/cart-drawer';
 export function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { items } = useCart();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    }
+  };
+
+  // Focus search input when opened on mobile
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
@@ -25,32 +45,42 @@ export function Header() {
             Scale-Edge
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <Link
-              href="/categories"
-              className={`text-sm font-medium transition-colors ${
-                pathname === '/categories'
-                  ? 'text-orange-600'
-                  : 'text-gray-700 dark:text-gray-300 hover:text-orange-600'
-              }`}
-            >
-              Categories
-            </Link>
-            <Link
-              href="/about"
-              className={`text-sm font-medium transition-colors ${
-                pathname === '/about'
-                  ? 'text-orange-600'
-                  : 'text-gray-700 dark:text-gray-300 hover:text-orange-600'
-              }`}
-            >
-              About
-            </Link>
-          </nav>
+          {/* Desktop Search Bar (visible on md and up) */}
+          <div className="hidden md:flex flex-1 max-w-lg mx-4 lg:mx-8">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-orange-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
 
           {/* Right icons */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Mobile Search Toggle (visible below md) */}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label="Search"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+
             <CurrencySelector />
 
             {/* Cart button – OPENS DRAWER */}
@@ -86,6 +116,32 @@ export function Header() {
           </div>
         </div>
 
+        {/* Mobile Search Bar (collapsible) */}
+        {isSearchOpen && (
+          <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-orange-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
@@ -117,7 +173,7 @@ export function Header() {
         )}
       </div>
 
-      {/* Cart Drawer – rendered here */}
+      {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
