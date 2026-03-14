@@ -81,7 +81,7 @@ export function Header() {
               </svg>
             </button>
 
-            <CurrencySelector />
+            {/* <CurrencySelector /> */}
 
             {/* Cart button – OPENS DRAWER */}
             <button
