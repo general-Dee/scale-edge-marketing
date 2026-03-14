@@ -6,8 +6,10 @@ import { useCart } from '@/components/cart/cart-provider';
 import { usePathname } from 'next/navigation';
 import { CurrencySelector } from '@/components/currency-selector';
 import { UserMenu } from '@/components/user-menu';
+import { CartDrawer } from '@/components/cart/cart-drawer';
 
 export function Header() {
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { items } = useCart();
   const pathname = usePathname();
@@ -50,9 +52,12 @@ export function Header() {
           {/* Right icons */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <CurrencySelector />
-            
-            {/* Cart */}
-            <Link href="/cart" className="relative p-2">
+
+            {/* Cart button – OPENS DRAWER */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
@@ -61,7 +66,7 @@ export function Header() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
 
             <UserMenu />
 
@@ -111,6 +116,9 @@ export function Header() {
           </div>
         )}
       </div>
+
+      {/* Cart Drawer – rendered here */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
 }
