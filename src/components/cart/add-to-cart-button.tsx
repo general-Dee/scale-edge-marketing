@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/components/cart/cart-provider';
+import toast from 'react-hot-toast';
 
 interface AddToCartButtonProps {
   product: {
@@ -19,26 +20,30 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddToCart = () => {
-    if (!product.in_stock) return;
-    
+    if (!product.in_stock) {
+      toast.error('Product is out of stock');
+      return;
+    }
+
     setIsAdding(true);
-    
+    // Simulate slight delay for better UX
     setTimeout(() => {
       addItem({
         id: product.id,
         name: product.name,
         price: product.price,
         quantity: quantity,
-        image: product.image_urls?.[0] || '', // ✅ fallback to empty string
+        image: product.image_urls?.[0] || '',
       });
+      toast.success('Added to cart!');
       setIsAdding(false);
       setQuantity(1);
     }, 300);
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+      <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg self-start">
         <button
           onClick={() => setQuantity(Math.max(1, quantity - 1))}
           disabled={quantity <= 1 || !product.in_stock}
@@ -46,7 +51,9 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
         >
           -
         </button>
-        <span className="px-4 py-2 text-gray-900 dark:text-white">{quantity}</span>
+        <span className="px-4 py-2 text-gray-900 dark:text-white min-w-[3rem] text-center">
+          {quantity}
+        </span>
         <button
           onClick={() => setQuantity(quantity + 1)}
           disabled={!product.in_stock}

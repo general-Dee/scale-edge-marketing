@@ -28,7 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
       href={`/products/${product.id}`}
       className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden block"
     >
-      <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center p-8 overflow-hidden">
+      <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
         {product.image_urls?.[0] ? (
           <Image
             src={product.image_urls[0]}
@@ -38,23 +38,23 @@ export function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
           />
         ) : (
-          <span className="text-6xl">{getCategoryIcon(product.category)}</span>
+          <span className="text-4xl sm:text-5xl lg:text-6xl">{getCategoryIcon(product.category)}</span>
         )}
         {discount > 0 && (
-          <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded">
             -{discount}%
           </div>
         )}
       </div>
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
-        <div className="flex items-center gap-2 mb-2">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 text-sm sm:text-base">{product.name}</h3>
+        <div className="flex items-center gap-1 sm:gap-2 mb-2">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <svg
                 key={i}
-                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -65,11 +65,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-xs text-gray-500 dark:text-gray-400">({product.review_count})</span>
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="text-xl font-bold text-orange-600 dark:text-orange-400">
+          <span className="text-lg sm:text-xl font-bold text-orange-600 dark:text-orange-400">
             ₦{product.price.toLocaleString()}
           </span>
           {product.compare_at_price && (
-            <span className="text-sm text-gray-400 line-through">
+            <span className="text-xs sm:text-sm text-gray-400 line-through">
               ₦{product.compare_at_price.toLocaleString()}
             </span>
           )}

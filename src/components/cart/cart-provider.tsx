@@ -1,86 +1,64 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { useMetaPixel } from "@/components/providers/meta-pixel-provider";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
-  brand?: string;
-  category?: string;
+  image?: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: CartItem) => void;
+  addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  itemCount: number;
-  total: number;
+  totalItems: number;
+  subtotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'scale-edge-cart';
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [mounted, setMounted] = useState(false);
-  const { trackEvent, trackAddToCart } = useMetaPixel();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load cart from localStorage only after mount
+  // Load cart from localStorage on mount
   useEffect(() => {
-    setMounted(true);
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
-        const parsedCart = JSON.parse(savedCart);
-        setItems(parsedCart);
+        setItems(JSON.parse(savedCart));
       } catch (error) {
         console.error('Failed to parse cart from localStorage:', error);
-        localStorage.removeItem(CART_STORAGE_KEY);
       }
     }
+    setIsInitialized(true);
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Save to localStorage whenever cart changes
   useEffect(() => {
-    if (mounted) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    if (isInitialized) {
+      localStorage.setItem('cart', JSON.stringify(items));
     }
-  }, [items, mounted]);
+  }, [items, isInitialized]);
 
-  const addItem = (newItem: CartItem) => {
+  const addItem = (newItem: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setItems(currentItems => {
-      const existingItemIndex = currentItems.findIndex(item => item.id === newItem.id);
-      if (existingItemIndex >= 0) {
-        const updatedItems = [...currentItems];
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + newItem.quantity
-        };
-        try {
-          trackAddToCart(newItem.id, newItem.price * newItem.quantity, "NGN", {
-            content_name: newItem.name,
-            action: "increase_quantity",
-            cart_total: updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-          });
-        } catch (error) { console.log('Tracking unavailable'); }
-        return updatedItems;
-      } else {
-        try {
-          trackAddToCart(newItem.id, newItem.price * newItem.quantity, "NGN", {
-            content_name: newItem.name,
-            action: "first_add",
-            cart_total: [...currentItems, newItem].reduce((sum, item) => sum + (item.price * item.quantity), 0)
-          });
-        } catch (error) { console.log('Tracking unavailable'); }
-        return [...currentItems, newItem];
+      const existingItem = currentItems.find(item => item.id === newItem.id);
+      const quantityToAdd = newItem.quantity || 1;
+
+      if (existingItem) {
+        return currentItems.map(item =>
+          item.id === newItem.id
+            ? { ...item, quantity: item.quantity + quantityToAdd }
+            : item
+        );
       }
+      return [...currentItems, { ...newItem, quantity: quantityToAdd }];
     });
   };
 
@@ -102,11 +80,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem(CART_STORAGE_KEY);
   };
 
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <CartContext.Provider
@@ -116,8 +93,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
-        itemCount,
-        total
+        totalItems,
+        subtotal,
       }}
     >
       {children}
@@ -128,7 +105,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
+    throw new Error('useCart must be used within a CartProvider');
   }
   return context;
 }
