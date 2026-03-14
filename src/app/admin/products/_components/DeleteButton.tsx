@@ -1,25 +1,32 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
+import { deleteProduct } from '@/lib/actions/product-actions'
+import { useRouter } from 'next/navigation'
 
-export function DeleteButton({ productId }: { productId: string }) {
-  const router = useRouter();
+interface DeleteButtonProps {
+  productId: string
+}
+
+export function DeleteButton({ productId }: DeleteButtonProps) {
+  const router = useRouter()
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this product?')) {
-      await fetch(`/admin/products/${productId}/delete`, {
-        method: 'POST',
-      });
-      router.refresh(); // Refresh the page to update the list
+      try {
+        await deleteProduct(productId)
+        router.refresh()
+      } catch (error) {
+        alert('Failed to delete product')
+      }
     }
-  };
+  }
 
   return (
     <button
       onClick={handleDelete}
-      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+      className="text-red-600 hover:text-red-900"
     >
       Delete
     </button>
-  );
+  )
 }

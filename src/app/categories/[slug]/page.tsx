@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getProductsByCategory } from "@/lib/services/product-service";
+import { getProductsByCategory } from '@/lib/services/product-service.client'; // ✅ client import
 import { categories, getCategoryIcon, getCategoryColor } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 import { PageTemplate } from "@/components/page-template";

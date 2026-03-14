@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useGSAP } from '@gsap/react';
 import { gsap, SplitText } from '@/lib/gsap';
-import { getRecentProducts } from '@/lib/services/product-service';
+import { getRecentProducts } from '@/lib/services/product-service.client'; // ✅ client import
 import { categories, getCategoryColor, getCategoryIcon } from '@/lib/products';
 import { ProductCard } from '@/components/product-card';
 import { ProductGridSkeleton } from '@/components/skeletons/product-grid-skeleton';
@@ -62,7 +62,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero Section */}
+      {/* Hero Section (unchanged) */}
       <section className="relative bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -99,7 +99,6 @@ export default function HomePage() {
                 </svg>
               </Link>
             </div>
-            {/* Category Showcase */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {categories.map((cat) => (
                 <Link
