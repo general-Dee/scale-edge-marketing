@@ -62,6 +62,14 @@ export function Header() {
                 Sign In
               </Link>
             )}
+            <form action="/search" method="get" className="flex-1 max-w-lg mx-4">
+                <input
+                  type="text"
+                  name="q"
+                  placeholder="Search products..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                />
+            </form>
             <button
               ref={cartButtonRef}
               onClick={() => setIsCartOpen(true)}

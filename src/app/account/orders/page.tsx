@@ -6,7 +6,7 @@ import { getOrdersByCustomer } from '@/lib/services/order-service'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AccountPage() {
+export default async function OrdersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -16,27 +16,24 @@ export default async function AccountPage() {
 
   const customer = await getCurrentCustomer()
   if (!customer) {
-    // Customer record might not exist yet (if they signed up but haven't placed an order)
-    // You could create one here or redirect to profile creation.
-    return <div>Loading...</div>
+    redirect('/account')
   }
 
   const orders = await getOrdersByCustomer(customer.id)
-  const recentOrders = orders.slice(0, 3)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Account</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Sidebar */}
         <div className="md:col-span-1">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <nav className="space-y-2">
-              <Link href="/account" className="block px-3 py-2 rounded-md bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 font-medium">
+              <Link href="/account" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
                 Dashboard
               </Link>
-              <Link href="/account/orders" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <Link href="/account/orders" className="block px-3 py-2 rounded-md bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 font-medium">
                 Orders
               </Link>
               <Link href="/account/profile" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
@@ -51,49 +48,41 @@ export default async function AccountPage() {
           </div>
         </div>
 
-        {/* Main content */}
-        <div className="md:col-span-3 space-y-6">
-          {/* Welcome card */}
+        {/* Orders list */}
+        <div className="md:col-span-3">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Welcome back, {customer.first_name}!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              {customer.email} · {customer.phone}
-            </p>
-          </div>
-
-          {/* Recent orders */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent orders</h2>
-              <Link href="/account/orders" className="text-sm text-orange-600 hover:underline">
-                View all →
-              </Link>
-            </div>
-            {recentOrders.length === 0 ? (
+            {orders.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400">You haven't placed any orders yet.</p>
             ) : (
-              <div className="space-y-3">
-                {recentOrders.map((order) => (
+              <div className="space-y-4">
+                {orders.map((order) => (
                   <Link
                     key={order.id}
                     href={`/account/orders/${order.id}`}
                     className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition"
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap justify-between items-center">
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
                           Order #{order.id.slice(0, 8)}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {new Date(order.created_at).toLocaleDateString()} · {order.items?.length || 0} items
+                          Placed on {new Date(order.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-orange-600">₦{order.total_amount.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{order.status}</p>
+                        <p className={`text-sm capitalize ${
+                          order.status === 'delivered' ? 'text-green-600' :
+                          order.status === 'cancelled' ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`}>
+                          {order.status}
+                        </p>
                       </div>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      {order.items?.length || 0} items · {order.shipping_method} shipping
                     </div>
                   </Link>
                 ))}
