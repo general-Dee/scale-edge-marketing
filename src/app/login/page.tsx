@@ -20,6 +20,7 @@ export default function LoginPage() {
     setMessage(null)
 
     if (isLogin) {
+      // Sign In
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         setMessage({ type: 'error', text: error.message })
@@ -28,12 +29,28 @@ export default function LoginPage() {
         router.refresh()
       }
     } else {
-      // Sign up – you can also send magic link, but here's password sign-up
-      const { error } = await supabase.auth.signUp({ email, password })
+      // Sign Up
+      const { error, data } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      })
+      
       if (error) {
         setMessage({ type: 'error', text: error.message })
       } else {
-        setMessage({ type: 'success', text: 'Check your email for confirmation!' })
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+          setMessage({ type: 'error', text: 'This email is already registered. Please sign in instead.' })
+        } else {
+          setMessage({ 
+            type: 'success', 
+            text: 'Registration successful! Please check your email to confirm your account.' 
+          })
+          // Optionally switch to login mode after signup
+          setTimeout(() => setIsLogin(true), 3000)
+        }
       }
     }
     setLoading(false)
@@ -46,7 +63,12 @@ export default function LoginPage() {
     }
     setLoading(true)
     setMessage(null)
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    const { error } = await supabase.auth.signInWithOtp({ 
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      }
+    })
     if (error) {
       setMessage({ type: 'error', text: error.message })
     } else {
@@ -79,22 +101,20 @@ export default function LoginPage() {
                 placeholder="Email address"
               />
             </div>
-            {isLogin && (
-              <div>
-                <label htmlFor="password" className="sr-only">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required={isLogin}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder="Password"
-                />
-              </div>
-            )}
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder={isLogin ? "Password" : "Password (min. 6 characters)"}
+              />
+            </div>
           </div>
 
           {message && (
@@ -109,7 +129,7 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
             >
-              {loading ? 'Processing...' : isLogin ? 'Sign in' : 'Sign up'}
+              {loading ? 'Processing...' : (isLogin ? 'Sign in' : 'Sign up')}
             </button>
           </div>
         </form>
@@ -128,7 +148,10 @@ export default function LoginPage() {
 
         <div className="text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setMessage(null)
+            }}
             className="text-sm text-orange-600 hover:text-orange-500"
           >
             {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
