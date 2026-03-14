@@ -1,22 +1,23 @@
 export interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  compare_at_price?: number
-  image_urls: string[]
-  category: string
-  brand: string
-  rating: number
-  review_count: number
-  in_stock: boolean
-  stock: number
-  features: string[]
-  specifications: Record<string, string>
-  tags: string[]
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  compare_at_price?: number;
+  image_urls: string[];
+  category: string;
+  brand: string;
+  rating: number;
+  review_count: number;
+  in_stock: boolean;
+  stock: number;
+  features: string[];
+  specifications: Record<string, string>;
+  tags: string[];
+  created_at: string;
 }
 
-export const categories = [
+export const categories: { name: string; icon: string; slug: string }[] = [
   { name: "Phones", icon: "📱", slug: "phones" },
   { name: "Tablets", icon: "📟", slug: "tablets" },
   { name: "Laptops", icon: "💻", slug: "laptops" },
@@ -24,7 +25,7 @@ export const categories = [
   { name: "Speakers", icon: "🔊", slug: "speakers" },
   { name: "Smart Watches", icon: "⌚", slug: "smart-watches" },
   { name: "Solar Solutions", icon: "☀️", slug: "solar-solutions" },
-]
+];
 
 export function getCategoryIcon(categoryName: string): string {
   const icons: Record<string, string> = {
@@ -35,8 +36,8 @@ export function getCategoryIcon(categoryName: string): string {
     "Speakers": "🔊",
     "Smart Watches": "⌚",
     "Solar Solutions": "☀️",
-  }
-  return icons[categoryName] || "📦"
+  };
+  return icons[categoryName] || "📦";
 }
 
 export function getCategoryColor(categoryName: string): string {
@@ -48,8 +49,8 @@ export function getCategoryColor(categoryName: string): string {
     "Speakers": "bg-cyan-100",
     "Smart Watches": "bg-green-100",
     "Solar Solutions": "bg-amber-100",
-  }
-  return colors[categoryName] || "bg-gray-100"
+  };
+  return colors[categoryName] || "bg-gray-100";
 }
 
 export function getCategoryGradient(categoryName: string): string {
@@ -61,6 +62,6 @@ export function getCategoryGradient(categoryName: string): string {
     "Speakers": "from-cyan-500 to-cyan-600",
     "Smart Watches": "from-green-500 to-green-600",
     "Solar Solutions": "from-amber-500 to-amber-600",
-  }
-  return gradients[categoryName] || "from-gray-500 to-gray-600"
+  };
+  return gradients[categoryName] || "from-gray-500 to-gray-600";
 }

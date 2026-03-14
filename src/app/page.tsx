@@ -9,7 +9,8 @@ import { useGSAP } from '@gsap/react';
 import { gsap, SplitText } from '@/lib/gsap';
 import { getRecentProducts } from '@/lib/services/product-service';
 import { categories, getCategoryColor, getCategoryIcon } from '@/lib/products';
-import { ProductGridSkeleton } from "@/components/skeletons";
+import { ProductCard } from '@/components/product-card';
+import { ProductGridSkeleton } from '@/components/skeletons/product-grid-skeleton';
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
@@ -98,6 +99,7 @@ export default function HomePage() {
                 </svg>
               </Link>
             </div>
+            {/* Category Showcase */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {categories.map((cat) => (
                 <Link
@@ -105,7 +107,9 @@ export default function HomePage() {
                   href={`/categories/${cat.slug}`}
                   className={`${getCategoryColor(cat.name)} dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all block text-center`}
                 >
-                  <span className="text-3xl sm:text-4xl mb-2 block text-gray-900 dark:text-white">{cat.icon}</span>
+                  <span className="text-3xl sm:text-4xl mb-2 block text-gray-900 dark:text-white">
+                    {cat.icon}
+                  </span>
                   <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{cat.name}</h3>
                 </Link>
               ))}
@@ -132,31 +136,7 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
-                <Link key={product.id} href={`/products/${product.id}`} className="group bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-xl transition-all">
-                  <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 overflow-hidden group-hover:scale-105 transition-transform">
-                    {product.image_urls?.[0] ? (
-                      <Image src={product.image_urls[0]} alt={product.name} fill className="object-contain" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-5xl text-gray-600 dark:text-gray-400">{getCategoryIcon(product.category)}</span>
-                      </div>
-                    )}
-                    {product.compare_at_price && (
-                      <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        -{Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}%
-                      </div>
-                    )}
-                    {product.tags?.includes("bestseller") && (
-                      <div className="absolute top-4 right-4 bg-orange-600 text-white text-xs font-bold px-2 py-1 rounded">BESTSELLER</div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-orange-600 dark:text-orange-400 font-bold">₦{product.price.toLocaleString()}</p>
-                    {product.compare_at_price && <p className="text-xs text-gray-400 line-through">₦{product.compare_at_price.toLocaleString()}</p>}
-                  </div>
-                </Link>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
