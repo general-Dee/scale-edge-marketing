@@ -63,7 +63,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       <div className="mt-8">
                         <div className="flow-root">
                           {items.length === 0 ? (
-                            <p className="text-center text-gray-500 dark:text-gray-400">Your cart is empty.</p>
+                            <p className="text-center text-gray-500 dark:text-gray-400">
+                              Your cart is empty.
+                            </p>
                           ) : (
                             <ul role="list" className="-my-6 divide-y divide-gray-200 dark:divide-gray-700">
                               {items.map((item) => (
@@ -104,7 +106,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         >
                                           -
                                         </button>
-                                        <span className="px-2 py-1 text-gray-900 dark:text-white">{item.quantity}</span>
+                                        <span className="px-2 py-1 text-gray-900 dark:text-white">
+                                          {item.quantity}
+                                        </span>
                                         <button
                                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                           className="px-2 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -145,7 +149,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             onClick={onClose}
                             className="flex items-center justify-center rounded-md border border-transparent bg-orange-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-orange-700"
                           >
-                            Checkout
+                            Proceed to Payment
                           </Link>
                         </div>
                         <div className="mt-6 flex justify-center text-center text-sm text-gray-500 dark:text-gray-400">
