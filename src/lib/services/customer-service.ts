@@ -11,9 +11,6 @@ export interface Customer {
   created_at: string
 }
 
-/**
- * Fetch all customers (admin only – RLS must allow admins to view all).
- */
 export const getCustomers = cache(async (): Promise<Customer[]> => {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -28,9 +25,6 @@ export const getCustomers = cache(async (): Promise<Customer[]> => {
   return data as Customer[]
 })
 
-/**
- * Fetch a single customer by ID (admin or the customer themselves).
- */
 export const getCustomerById = cache(async (id: string): Promise<Customer | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -46,15 +40,10 @@ export const getCustomerById = cache(async (id: string): Promise<Customer | null
   return data as Customer | null
 })
 
-/**
- * Fetch the currently logged-in customer's profile.
- * Returns null if no user or no customer record.
- */
 export const getCurrentCustomer = cache(async (): Promise<Customer | null> => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-
   const { data, error } = await supabase
     .from('customers')
     .select('*')

@@ -60,7 +60,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="text-xl sm:text-2xl font-bold text-orange-600">
-            Scale-Edge
+            Voltream
           </Link>
 
           {/* Desktop Search Bar */}
@@ -132,7 +132,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* Desktop Navigation (hidden on mobile, shown inline) */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8 py-2 border-t border-gray-200 dark:border-gray-700">
           {navLinks.map((link) => (
             <Link

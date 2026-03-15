@@ -14,10 +14,32 @@ export async function updateCustomerProfile(formData: FormData) {
     phone: formData.get('phone'),
   }
 
-  const { error } = await supabase
+  // Check if customer record exists
+  const { data: existing } = await supabase
     .from('customers')
-    .update(updates)
+    .select('id')
     .eq('user_id', user.id)
+    .maybeSingle()
+
+  let error
+  if (existing) {
+    // Update existing
+    const result = await supabase
+      .from('customers')
+      .update(updates)
+      .eq('user_id', user.id)
+    error = result.error
+  } else {
+    // Insert new
+    const result = await supabase
+      .from('customers')
+      .insert({
+        ...updates,
+        user_id: user.id,
+        email: user.email,
+      })
+    error = result.error
+  }
 
   if (error) throw error
   revalidatePath('/account')

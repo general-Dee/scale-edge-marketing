@@ -4,7 +4,7 @@ import { cache } from 'react'
 export interface Order {
   id: string
   customer_id: string
-  items: any[] // can be further typed if needed
+  items: any[]
   total_amount: number
   shipping_address: string
   shipping_method: string
@@ -27,7 +27,7 @@ export interface Order {
 /**
  * Fetch all orders (admin only). Includes customer details.
  */
-export const getOrders = cache(async () => {
+export const getOrders = cache(async (): Promise<Order[]> => {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('orders')

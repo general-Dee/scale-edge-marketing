@@ -3,9 +3,11 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentCustomer } from '@/lib/services/customer-service'
 import { getOrdersByCustomer } from '@/lib/services/order-service'
+import type { Order } from '@/lib/services/order-service' // ✅ import Order type
 
 export const dynamic = 'force-dynamic'
 
+// Main account page component
 export default async function AccountPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -14,14 +16,57 @@ export default async function AccountPage() {
     redirect('/login')
   }
 
-  const customer = await getCurrentCustomer()
-  if (!customer) {
-    // Customer record might not exist yet (if they signed up but haven't placed an order)
-    // You could create one here or redirect to profile creation.
-    return <div>Loading...</div>
+  let customer = null
+  let orders: Order[] = [] // ✅ typed as Order array
+  let error = null
+
+  try {
+    customer = await getCurrentCustomer()
+    if (customer) {
+      orders = await getOrdersByCustomer(customer.id)
+    }
+  } catch (err) {
+    console.error('Error loading account data:', err)
+    error = 'Failed to load account data. Please try again later.'
   }
 
-  const orders = await getOrdersByCustomer(customer.id)
+  // If no customer record exists (user signed up but hasn't placed an order)
+  // Show a prompt to complete profile
+  if (!customer) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Welcome to Voltream!</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Your account is ready, but we need a few more details to complete your profile.
+          </p>
+          <Link
+            href="/account/profile"
+            className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+          >
+            Complete Your Profile
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const recentOrders = orders.slice(0, 3)
 
   return (
@@ -33,17 +78,29 @@ export default async function AccountPage() {
         <div className="md:col-span-1">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <nav className="space-y-2">
-              <Link href="/account" className="block px-3 py-2 rounded-md bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 font-medium">
+              <Link
+                href="/account"
+                className="block px-3 py-2 rounded-md bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 font-medium"
+              >
                 Dashboard
               </Link>
-              <Link href="/account/orders" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <Link
+                href="/account/orders"
+                className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              >
                 Orders
               </Link>
-              <Link href="/account/profile" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <Link
+                href="/account/profile"
+                className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              >
                 Profile
               </Link>
               <form action="/auth/signout" method="post">
-                <button type="submit" className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <button
+                  type="submit"
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                >
                   Sign out
                 </button>
               </form>

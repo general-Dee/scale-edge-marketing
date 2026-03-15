@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -10,46 +10,63 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'error' | 'success' | 'info'; text: string } | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  // If user is already logged in, redirect to account page
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.push('/account')
+      }
+    }
+    checkUser()
+  }, [router, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
 
+    // Get redirect URL from query param, default to /account
+    const redirectTo = searchParams.get('redirectTo') || '/account'
+
     if (isLogin) {
-      // Sign In
+      // Login
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
+        console.error('Login error:', error)
         setMessage({ type: 'error', text: error.message })
       } else {
-        router.push('/')
+        router.push(redirectTo)
         router.refresh()
       }
     } else {
-      // Sign Up
-      const { error, data } = await supabase.auth.signUp({ 
-        email, 
+      // Signup
+      const { error, data } = await supabase.auth.signUp({
+        email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+        },
       })
-      
+
       if (error) {
+        console.error('Signup error:', error)
         setMessage({ type: 'error', text: error.message })
       } else {
         if (data.user && data.user.identities && data.user.identities.length === 0) {
           setMessage({ type: 'error', text: 'This email is already registered. Please sign in instead.' })
         } else {
-          setMessage({ 
-            type: 'success', 
-            text: 'Registration successful! Please check your email to confirm your account.' 
+          setMessage({
+            type: 'success',
+            text: 'Registration successful! Please check your email (including spam) to confirm your account.',
           })
-          // Optionally switch to login mode after signup
-          setTimeout(() => setIsLogin(true), 3000)
+          setPassword('')
+          setTimeout(() => setIsLogin(true), 5000)
         }
       }
     }
@@ -63,16 +80,18 @@ export default function LoginPage() {
     }
     setLoading(true)
     setMessage(null)
-    const { error } = await supabase.auth.signInWithOtp({ 
+    const redirectTo = searchParams.get('redirectTo') || '/account'
+    const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      }
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+      },
     })
     if (error) {
+      console.error('Magic link error:', error)
       setMessage({ type: 'error', text: error.message })
     } else {
-      setMessage({ type: 'success', text: 'Magic link sent! Check your email.' })
+      setMessage({ type: 'success', text: 'Magic link sent! Check your email (including spam).' })
     }
     setLoading(false)
   }
@@ -82,7 +101,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            {isLogin ? 'Sign in to your account' : 'Create an account'}
+            {isLogin ? 'Sign in to Voltream' : 'Create a Voltream account'}
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -118,7 +137,15 @@ export default function LoginPage() {
           </div>
 
           {message && (
-            <div className={`text-sm ${message.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+            <div
+              className={`text-sm ${
+                message.type === 'error'
+                  ? 'text-red-600'
+                  : message.type === 'success'
+                  ? 'text-green-600'
+                  : 'text-blue-600'
+              }`}
+            >
               {message.text}
             </div>
           )}

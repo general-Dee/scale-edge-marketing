@@ -22,7 +22,7 @@ export async function GET(request: Request) {
                 cookieStore.set(name, value, options)
               )
             } catch {
-              // Ignore if called from Server Component
+              // Ignore
             }
           },
         },
@@ -31,6 +31,6 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  // Redirect to the homepage or a specified redirect URL
-  return NextResponse.redirect(requestUrl.origin)
+  // Redirect to the homepage or a success page
+  return NextResponse.redirect(new URL('/login?confirmed=true', requestUrl.origin))
 }

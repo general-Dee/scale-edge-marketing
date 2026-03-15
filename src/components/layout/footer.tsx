@@ -11,10 +11,10 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="text-2xl font-bold text-orange-600">
-              Scale-Edge
+              Voltream
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              Premium gadgets and solar solutions for the modern Nigerian consumer.
+              Premium gadgets and solar solutions for the modern African consumer.
             </p>
           </div>
 
@@ -63,6 +63,16 @@ export function Footer() {
                   Shipping & Returns
                 </Link>
               </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600">
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -96,7 +106,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            &copy; {currentYear} Scale-Edge Marketing. All rights reserved.
+            &copy; {currentYear} Voltream. All rights reserved.
           </p>
         </div>
       </div>

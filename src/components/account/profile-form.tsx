@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { updateCustomerProfile } from '@/lib/actions/customer-actions'
 
 interface ProfileFormProps {
-  customer: {
+  customer?: {
     id: string
     first_name: string
     last_name: string
     phone: string
     email: string
-  }
+  } | null
 }
 
 export function ProfileForm({ customer }: ProfileFormProps) {
@@ -29,8 +29,10 @@ export function ProfileForm({ customer }: ProfileFormProps) {
       await updateCustomerProfile(formData)
       setMessage({ type: 'success', text: 'Profile updated successfully!' })
       router.refresh()
+      // Redirect to account page after a short delay
+      setTimeout(() => router.push('/account'), 2000)
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update profile' })
+      setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' })
     } finally {
       setLoading(false)
     }
@@ -47,7 +49,7 @@ export function ProfileForm({ customer }: ProfileFormProps) {
             type="text"
             name="first_name"
             id="first_name"
-            defaultValue={customer.first_name}
+            defaultValue={customer?.first_name || ''}
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
@@ -60,7 +62,7 @@ export function ProfileForm({ customer }: ProfileFormProps) {
             type="text"
             name="last_name"
             id="last_name"
-            defaultValue={customer.last_name}
+            defaultValue={customer?.last_name || ''}
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
@@ -73,7 +75,7 @@ export function ProfileForm({ customer }: ProfileFormProps) {
             type="tel"
             name="phone"
             id="phone"
-            defaultValue={customer.phone}
+            defaultValue={customer?.phone || ''}
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
@@ -85,7 +87,7 @@ export function ProfileForm({ customer }: ProfileFormProps) {
           <input
             type="email"
             id="email"
-            value={customer.email}
+            value={customer?.email || ''}
             disabled
             className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-gray-400 cursor-not-allowed"
           />
@@ -104,7 +106,7 @@ export function ProfileForm({ customer }: ProfileFormProps) {
         disabled={loading}
         className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
       >
-        {loading ? 'Saving...' : 'Save changes'}
+        {loading ? 'Saving...' : (customer ? 'Update Profile' : 'Create Profile')}
       </button>
     </form>
   )
