@@ -26,35 +26,42 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden block"
+      className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
     >
-      <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
+      {/* Image container */}
+      <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
         {product.image_urls?.[0] ? (
           <Image
             src={product.image_urls[0]}
             alt={product.name}
             fill
-            className="object-contain transform group-hover:scale-110 transition-transform"
+            className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
           />
         ) : (
-          <span className="text-4xl sm:text-5xl lg:text-6xl">{getCategoryIcon(product.category)}</span>
-        )}
-        {discount > 0 && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded">
-            -{discount}%
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-6xl text-gray-400">{getCategoryIcon(product.category)}</span>
           </div>
         )}
+        {discount > 0 && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            -{discount}%
+          </span>
+        )}
       </div>
-      <div className="p-3 sm:p-4">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 text-sm sm:text-base">{product.name}</h3>
-        <div className="flex items-center gap-1 sm:gap-2 mb-2">
+
+      {/* Content */}
+      <div className="p-4">
+        <p className="text-sm text-orange-600 dark:text-orange-400 font-semibold mb-1">{product.brand}</p>
+        <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-2">{product.name}</h3>
+
+        {/* Rating */}
+        <div className="flex items-center mb-2">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <svg
                 key={i}
-                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -62,14 +69,16 @@ export function ProductCard({ product }: ProductCardProps) {
               </svg>
             ))}
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">({product.review_count})</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">({product.review_count})</span>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg sm:text-xl font-bold text-orange-600 dark:text-orange-400">
+
+        {/* Price */}
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
             ₦{product.price.toLocaleString()}
           </span>
           {product.compare_at_price && (
-            <span className="text-xs sm:text-sm text-gray-400 line-through">
+            <span className="text-sm text-gray-400 line-through">
               ₦{product.compare_at_price.toLocaleString()}
             </span>
           )}

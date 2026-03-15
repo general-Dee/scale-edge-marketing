@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useCart } from '@/components/cart/cart-provider';
 import { usePathname, useRouter } from 'next/navigation';
-import { CurrencySelector } from '@/components/currency-selector';
 import { UserMenu } from '@/components/user-menu';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 
@@ -13,12 +12,21 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [scrolled, setScrolled] = useState(false);
   const { items } = useCart();
   const pathname = usePathname();
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +37,25 @@ export function Header() {
     }
   };
 
-  // Focus search input when opened on mobile
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
 
+  const navLinks = [
+    { href: '/categories', label: 'Categories' },
+    { href: '/about', label: 'About' },
+  ];
+
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-sm'
+          : 'bg-white dark:bg-gray-800'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -45,7 +63,7 @@ export function Header() {
             Scale-Edge
           </Link>
 
-          {/* Desktop Search Bar (visible on md and up) */}
+          {/* Desktop Search Bar */}
           <div className="hidden md:flex flex-1 max-w-lg mx-4 lg:mx-8">
             <form onSubmit={handleSearchSubmit} className="w-full">
               <div className="relative">
@@ -70,7 +88,7 @@ export function Header() {
 
           {/* Right icons */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Mobile Search Toggle (visible below md) */}
+            {/* Mobile Search Toggle */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -81,9 +99,7 @@ export function Header() {
               </svg>
             </button>
 
-            {/* <CurrencySelector /> */}
-
-            {/* Cart button – OPENS DRAWER */}
+            {/* Cart button */}
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -116,7 +132,24 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile Search Bar (collapsible) */}
+        {/* Desktop Navigation (hidden on mobile, shown inline) */}
+        <nav className="hidden md:flex space-x-8 py-2 border-t border-gray-200 dark:border-gray-700">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? 'text-orange-600'
+                  : 'text-gray-700 dark:text-gray-300 hover:text-orange-600'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Mobile Search Bar */}
         {isSearchOpen && (
           <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700">
             <form onSubmit={handleSearchSubmit} className="w-full">
@@ -146,34 +179,25 @@ export function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
             <nav className="flex flex-col space-y-3">
-              <Link
-                href="/categories"
-                className={`px-2 py-2 text-base font-medium rounded-md ${
-                  pathname === '/categories'
-                    ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Categories
-              </Link>
-              <Link
-                href="/about"
-                className={`px-2 py-2 text-base font-medium rounded-md ${
-                  pathname === '/about'
-                    ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-2 py-2 text-base font-medium rounded-md ${
+                    pathname === link.href
+                      ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
         )}
       </div>
 
-      {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
