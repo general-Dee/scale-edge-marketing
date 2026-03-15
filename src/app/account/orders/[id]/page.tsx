@@ -4,45 +4,29 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getOrderById } from '@/lib/services/order-service'
 import { getCurrentCustomer } from '@/lib/services/customer-service'
+import type { Order } from '@/lib/services/order-service'
 
 export const dynamic = 'force-dynamic'
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
 
   const customer = await getCurrentCustomer()
-  if (!customer) {
-    redirect('/account')
-  }
+  if (!customer) redirect('/account')
 
   const order = await getOrderById(params.id)
-
-  // Ensure the order belongs to the current customer
-  if (!order || order.customer_id !== customer.id) {
-    notFound()
-  }
+  if (!order || order.customer_id !== customer.id) notFound()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-6">
-        <Link href="/account/orders" className="text-orange-600 hover:underline">
-          ← Back to orders
-        </Link>
+        <Link href="/account/orders" className="text-orange-600 hover:underline">← Back to orders</Link>
       </div>
-
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Order #{order.id.slice(0, 8)}
-      </h1>
-
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Order #{order.id.slice(0, 8)}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Order details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Items */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Items</h2>
             <div className="space-y-4">
@@ -57,16 +41,12 @@ export default async function OrderDetailPage({ params }: { params: { id: string
               ))}
             </div>
           </div>
-
-          {/* Shipping address */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Shipping address</h2>
             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{order.shipping_address}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 capitalize">Method: {order.shipping_method}</p>
           </div>
         </div>
-
-        {/* Order summary */}
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sticky top-24">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Order summary</h2>
@@ -84,23 +64,13 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 <span className="font-bold text-orange-600 text-xl">₦{order.total_amount.toLocaleString()}</span>
               </div>
               <div className="pt-4">
-                <p className={`text-sm font-medium ${
-                  order.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'
-                }`}>
+                <p className={`text-sm font-medium ${order.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
                   Payment: {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
                 </p>
-                <p className={`text-sm font-medium mt-1 capitalize ${
-                  order.status === 'delivered' ? 'text-green-600' :
-                  order.status === 'cancelled' ? 'text-red-600' :
-                  'text-yellow-600'
-                }`}>
+                <p className={`text-sm font-medium mt-1 capitalize ${order.status === 'delivered' ? 'text-green-600' : order.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}`}>
                   Status: {order.status}
                 </p>
-                {order.paid_at && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Paid on {new Date(order.paid_at).toLocaleDateString()}
-                  </p>
-                )}
+                {order.paid_at && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Paid on {new Date(order.paid_at).toLocaleDateString()}</p>}
               </div>
             </div>
           </div>

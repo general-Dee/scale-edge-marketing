@@ -2,13 +2,9 @@ import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { CheckoutSkeleton } from '@/components/skeletons/checkout-skeleton';
 
-// Dynamically import the checkout content (client component)
 const CheckoutContent = dynamic(
   () => import('@/components/pages/checkout-content'),
-  {
-    loading: () => <CheckoutSkeleton />,
-    ssr: false, // because it uses client-only hooks like useCart
-  }
+  { loading: () => <CheckoutSkeleton />, ssr: false }
 );
 
 export default function CheckoutPage() {
